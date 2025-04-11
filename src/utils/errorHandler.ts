@@ -4,8 +4,8 @@ import logger from '@/utils/logger';
 import { ErrorCodes, HttpError, NotFoundError } from '@/utils/HttpError';
 
 // 404 handler
-const notFoundHandler = (_req: Request, _res: Response) => {
-  throw new NotFoundError('Not found.', ErrorCodes.NOT_FOUND);
+const notFoundHandler = (_req: Request, _res: Response, next: NextFunction) => {
+  next(new NotFoundError('Not found.', ErrorCodes.NOT_FOUND));
 };
 
 const errorHandler = (
