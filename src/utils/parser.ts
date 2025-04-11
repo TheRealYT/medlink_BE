@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { ParsedQs } from 'qs';
 import { AnyObject, Maybe, ObjectSchema, ValidationError } from 'yup';
 
-import { BadRequestError, ErrorCodes } from '@/utils/HttpError';
+import {
+  BadRequestError,
+  ErrorCodes,
+  UnauthorizedError,
+} from '@/utils/HttpError';
 import { SuccessResponse } from '@/utils/response';
 
 export enum Content {
@@ -83,6 +87,27 @@ export function param<T extends Schema>(type: ObjectSchema<T>) {
 // validate object from req query
 export function query<T extends Schema>(type: ObjectSchema<T>) {
   return validate(Content.Query, type);
+}
+
+type TokenTypes = 'Bearer' | 'Api-Key' | 'Basic' | 'Custom' | 'OAuth2';
+
+// extract token from authorization header
+export function token(type?: TokenTypes | string) {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    const [specifiedType, token] = req.headers.authorization?.split(' ') ?? [];
+
+    if (token && (!type || specifiedType === type)) {
+      req.context.push(token);
+      return next();
+    }
+
+    next(
+      new UnauthorizedError(
+        'Authorization required.',
+        ErrorCodes.AUTH_REQUIRED,
+      ),
+    );
+  };
 }
 
 // middleware wrapper that invokes a controller function with req.context as arguments.
