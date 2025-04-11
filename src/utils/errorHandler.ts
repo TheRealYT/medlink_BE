@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 
 import logger from '@/utils/logger';
+import { ErrorCodes, HttpError, NotFoundError } from '@/utils/HttpError';
 
 // 404 handler
-const notFoundHandler = (_req: Request, res: Response) => {
-  res.error(404, 'NOT_FOUND', 'Not found.');
+const notFoundHandler = (_req: Request, _res: Response) => {
+  throw new NotFoundError('Not found.', ErrorCodes.NOT_FOUND);
 };
 
 const errorHandler = (
@@ -20,7 +21,7 @@ const errorHandler = (
     stack: err.stack,
   });
 
-  res.error(500, 'INTERNAL_ERROR', 'Internal server error.');
+  res.error(500, 'Internal server error.', ErrorCodes.INTERNAL_ERROR);
 };
 
 export default [notFoundHandler, errorHandler];
