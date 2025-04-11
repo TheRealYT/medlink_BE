@@ -36,3 +36,9 @@ export class NotFoundError extends HttpError {
     super(404, message, errorCode, errorDetails);
   }
 }
+
+export class UnauthorizedError extends HttpError {
+  constructor(message: string, errorCode?: ErrorCodes, errorDetails?: object) {
+    super(401, message, errorCode, errorDetails);
+  }
+}
