@@ -9,7 +9,12 @@ export class HttpError extends Error {
   errorCode?: ErrorCodes;
   errorDetails?: object;
 
-  constructor(statusCode: number, message: string, errorCode?: ErrorCodes, errorDetails?: object) {
+  constructor(
+    statusCode: number,
+    message: string,
+    errorCode?: ErrorCodes,
+    errorDetails?: object,
+  ) {
     super(message);
 
     this.statusCode = statusCode;

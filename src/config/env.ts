@@ -6,7 +6,11 @@ import Yup from 'yup';
 import { logger } from '@/utils';
 
 const envSchema = Yup.object().shape({
-  MONGODB_URI: Yup.string().matches(/^(mongodb(?:\+srv)?:\/\/)((\w+?):(\w+?)@|)?([\w.-]+)(?::(\d+))?\/([\w-]+)$/).required('MongoDB URI is required'),
+  MONGODB_URI: Yup.string()
+    .matches(
+      /^(mongodb(?:\+srv)?:\/\/)((\w+?):(\w+?)@|)?([\w.-]+)(?::(\d+))?\/([\w-]+)$/,
+    )
+    .required('MongoDB URI is required'),
   REDIS_HOST: Yup.string().required('Redis host is required'),
   REDIS_PORT: Yup.number()
     .positive()
