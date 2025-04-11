@@ -3,8 +3,10 @@ import Redis from 'ioredis';
 import { getEnv } from '@/config/env';
 import { logger } from '@/utils';
 
+export let redis: Redis;
+
 export function connectRedis() {
-  const redis = new Redis({
+  redis = new Redis({
     host: getEnv('REDIS_HOST'),
     port: getEnv('REDIS_PORT'),
   });
