@@ -2,11 +2,15 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { getEnv } from '@/config';
-import { errorHandler, logger, response } from '@/utils';
+import { context, errorHandler, logger, response } from '@/utils';
 
 export function initApp() {
   const app = express();
   const port = getEnv('PORT');
+
+  // helper functions added first
+  app.use(response);
+  app.use(context);
 
   // request logger
   app.use(morgan('dev'));
