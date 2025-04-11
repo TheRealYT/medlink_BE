@@ -2,6 +2,8 @@ export enum ErrorCodes {
   INVALID_INPUT = 'INVALID_INPUT',
   NOT_FOUND = 'NOT_FOUND',
   INTERNAL_ERROR = 'INTERNAL_ERROR',
+  AUTH_REQUIRED = 'AUTH_REQUIRED',
+  EMAIL_EXISTS = 'EMAIL_EXISTS',
 }
 
 export class HttpError extends Error {
