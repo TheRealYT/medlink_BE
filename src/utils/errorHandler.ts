@@ -14,6 +14,11 @@ const errorHandler = (
   res: Response,
   _next: NextFunction,
 ) => {
+  if (err instanceof HttpError) {
+    res.error(err.statusCode, err.message, err.errorCode, err.errorDetails);
+    return;
+  }
+
   logger.error('500 Internal Server Error', {
     method: req.method,
     url: req.originalUrl,
