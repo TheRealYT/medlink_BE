@@ -9,11 +9,13 @@ declare module 'express-serve-static-core' {
   }
 }
 
-function success({
-  data,
-  message,
-  statusCode = 200,
-}: { data?: object; message?: string; statusCode?: number } = {}) {
+export type SuccessResponse = {
+  data?: object;
+  message?: string;
+  statusCode?: number;
+};
+
+function success({ data, message, statusCode = 200 }: SuccessResponse = {}) {
   return (this as Response)
     .status(statusCode)
     .setHeader('Content-Type', 'application/json')
