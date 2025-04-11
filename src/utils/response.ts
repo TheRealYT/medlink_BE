@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
+import { ErrorCodes } from '@/utils/HttpError';
+
 declare module 'express-serve-static-core' {
   interface Response {
     success: typeof success;
@@ -8,10 +10,10 @@ declare module 'express-serve-static-core' {
 }
 
 function success({
-  data,
-  message,
-  statusCode = 200,
-}: { data?: object; message?: string; statusCode?: number } = {}) {
+                   data,
+                   message,
+                   statusCode = 200,
+                 }: { data?: object; message?: string; statusCode?: number } = {}) {
   return (this as Response)
     .status(statusCode)
     .setHeader('Content-Type', 'application/json')
@@ -24,8 +26,8 @@ function success({
 
 function error(
   statusCode: number,
-  errorCode: string,
   message: string,
+  errorCode?: ErrorCodes,
   errorDetails?: object,
 ) {
   return (this as Response)
@@ -39,7 +41,7 @@ function error(
     });
 }
 
-export default function (_req: Request, res: Response, next: NextFunction) {
+export default function(_req: Request, res: Response, next: NextFunction) {
   res.success = success;
   res.error = error;
   next();
