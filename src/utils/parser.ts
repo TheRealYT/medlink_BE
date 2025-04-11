@@ -92,12 +92,12 @@ export function query<T extends Schema>(type: ObjectSchema<T>) {
 export function pass(
   controller: (
     ...args: any
-  ) => SuccessResponse | Promise<SuccessResponse> | undefined,
+  ) => SuccessResponse | Promise<SuccessResponse> | void | Promise<void>,
 ) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await controller(...req.context);
-      res.success(result);
+      res.success(result as SuccessResponse | undefined);
     } catch (err) {
       next(err);
     }
