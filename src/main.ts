@@ -1,37 +1,27 @@
-import express from 'express';
-import morgan from 'morgan';
+import process from 'node:process';
 
-import { loadConfig, getEnv } from '@/config';
-import { logger, errorHandler, response } from '@/utils';
+import { initApp } from '@/app';
+import { loadConfig } from '@/config';
+import { connectRedis } from '@/config/redis';
+import { connectMongoDB } from '@/config/mongo';
+
+async function main() {
+  loadConfig();
+
+  // connect to databases
+  await connectRedis();
+  await connectMongoDB();
+
+  // start the server
+  await initApp();
+}
 
 // init required components
-loadConfig();
-
-const app = express();
-const port = getEnv('PORT');
-
-// request logger
-app.use(morgan('dev'));
-
-// body parsers
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// helper functions
-app.use(response);
-
-// middlewares
-app.get('/', (_req, res) => {
-  res.success();
-});
-
-app.get('/error', (_req, _res, next) => {
-  next(new Error());
-});
-
-// error handler
-app.use(errorHandler);
-
-app.listen(port, () => {
-  logger.info(`Listening on port ${port}`, { port });
-});
+main()
+  .then(() => {
+    console.log('All services have started successfully!');
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
