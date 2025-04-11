@@ -3,6 +3,7 @@ import morgan from 'morgan';
 
 import { getEnv } from '@/config';
 import { context, errorHandler, logger, response } from '@/utils';
+import authRouter from '@/auth/auth.router';
 
 export function initApp() {
   const app = express();
@@ -18,6 +19,9 @@ export function initApp() {
   // body parsers
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+
+  // api endpoints
+  app.use('/api/auth', authRouter);
 
   // error handler
   app.use(errorHandler);
