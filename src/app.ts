@@ -15,18 +15,6 @@ export function initApp() {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
 
-  // helper functions
-  app.use(response);
-
-  // middlewares
-  app.get('/', (_req, res) => {
-    res.success();
-  });
-
-  app.get('/error', (_req, _res, next) => {
-    next(new Error());
-  });
-
   // error handler
   app.use(errorHandler);
 
