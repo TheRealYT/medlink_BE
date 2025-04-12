@@ -3,10 +3,10 @@ import { model, Schema } from 'mongoose';
 export type UserSession = {
   id: string;
   email: string;
-  role: UserRole;
+  userType: UserType;
 };
 
-export enum UserRole {
+export enum UserType {
   CUSTOMER = 'customer',
   PHARMACIST = 'pharmacist',
 }
@@ -25,14 +25,14 @@ export const UserSchema = new Schema(
       type: String,
       required: true,
     },
-    role: {
+    userType: {
       type: String,
-      enum: Object.values(UserRole),
+      enum: Object.values(UserType),
       required: true,
     },
   },
   {
-    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    timestamps: true,
   },
 );
 

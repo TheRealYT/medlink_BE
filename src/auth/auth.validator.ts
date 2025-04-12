@@ -1,22 +1,17 @@
 import Yup from 'yup';
 
-import { UserRole } from '@/users/user.model';
+import { UserType } from '@/users/user.model';
 
 const email = Yup.string().email().required();
 
-const role = Yup.mixed<UserRole>()
-  .oneOf(Object.values(UserRole) as UserRole[])
+const userType = Yup.mixed<UserType>()
+  .oneOf(Object.values(UserType) as UserType[])
   .required();
-
-export const SendEmailDto = Yup.object().shape({
-  email,
-  role,
-});
 
 export const VerifyEmailDto = Yup.object().shape({
   email,
-  role,
-  code: Yup.string()
+  userType,
+  otp_code: Yup.string()
     .min(4, 'Code must be at least 4 characters long')
     .required(),
 });
@@ -40,7 +35,7 @@ export const SignupDto = Yup.object().shape({
 
 export const LoginDto = Yup.object().shape({
   email,
-  role,
+  userType,
   password: Yup.string().required(),
   remember_me: Yup.boolean().default(false),
 });
