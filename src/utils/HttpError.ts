@@ -43,3 +43,9 @@ export class UnauthorizedError extends HttpError {
     super(401, message, errorCode, errorDetails);
   }
 }
+
+export class AccessDeniedError extends HttpError {
+  constructor(message: string, errorCode?: ErrorCodes, errorDetails?: object) {
+    super(403, message, errorCode, errorDetails);
+  }
+}
