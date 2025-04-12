@@ -21,6 +21,7 @@ export const SignupDto = Yup.object().shape({
     .min(3, 'Full name must be at least 3 characters long')
     .max(50, 'Full name cannot exceed 50 characters')
     .required('Full name is required'),
+  email,
   password: Yup.string()
     .min(8, 'Password must be at least 8 characters long')
     .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -31,6 +32,7 @@ export const SignupDto = Yup.object().shape({
       'Password must contain at least one special character',
     )
     .required('Password is required'),
+  userType,
 });
 
 export const LoginDto = Yup.object().shape({
