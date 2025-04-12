@@ -13,11 +13,9 @@ class UserController {
         id: user._id.toString(),
         full_name: user.full_name,
         email: user.email,
-        role: user.role,
-        // @ts-ignore
-        created_at: user.created_at,
-        // @ts-ignore
-        updated_at: user.updated_at,
+        userType: user.userType,
+        created_at: user.createdAt,
+        updated_at: user.updatedAt,
       },
     };
   }

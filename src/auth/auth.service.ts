@@ -1,7 +1,9 @@
+import { UserType } from '@/users/user.model';
+
 class AuthService {
   // get a signup otp cache key
-  getSignupOtpKey(email: string, role: string) {
-    return `${email}-${role}-reg-otp`;
+  getSignupOtpKey(email: string, userType: UserType) {
+    return `${email}-${userType}-reg-otp`;
   }
 
   // get an access token cache key
