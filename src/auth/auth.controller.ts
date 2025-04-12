@@ -6,16 +6,24 @@ import cacheService from '@/cache/cache.service';
 import cryptoService from '@/crypto/crypto.service';
 import userService from '@/users/user.service';
 import {
+  AccessDeniedError,
   BadRequestError,
   ErrorCodes,
   UnauthorizedError,
 } from '@/utils/HttpError';
-import { SendEmailDto, SignupDto, VerifyEmailDto } from '@/auth/auth.validator';
-import { UserRole } from '@/users/user.model';
+import {
+  LoginDto,
+  SendEmailDto,
+  SignupDto,
+  VerifyEmailDto,
+} from '@/auth/auth.validator';
+import { UserRole, UserSession } from '@/users/user.model';
 
 const OTP_RESEND = 2; // in minutes
 const OTP_EXPIRY = 5; // in minutes
 const REG_TOKEN_EXPIRY = 24; // in hours
+const ACCESS_TOKEN_EXPIRY = 24; // in hours
+const REFRESH_TOKEN_EXPIRY = 30; // in days
 
 class AuthController {
   async sendEmailCode(data: Yup.InferType<typeof SendEmailDto>) {
@@ -119,6 +127,56 @@ class AuthController {
     throw new UnauthorizedError(
       'Authorization required.',
       ErrorCodes.AUTH_REQUIRED,
+    );
+  }
+
+  async login(data: Yup.InferType<typeof LoginDto>) {
+    const user = await userService.findUser(data.email, data.role);
+
+    if (
+      user != null &&
+      (await cryptoService.compare(data.password, user.password))
+    ) {
+      const [accessToken, refreshToken] = [
+        await cryptoService.generateSessionId(),
+        await cryptoService.generateSessionId(),
+      ];
+
+      const now = dayjs();
+      const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
+      const refreshTokenExpiry = now.add(REFRESH_TOKEN_EXPIRY, 'days');
+
+      const value: UserSession = {
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role,
+      };
+
+      await cacheService.setJSON(
+        authService.getAccessTokenKey(accessToken),
+        value,
+        accessTokenExpiry.diff(now, 'seconds'),
+      );
+      await cacheService.setJSON(
+        authService.getRefreshTokenKey(refreshToken),
+        value,
+        refreshTokenExpiry.diff(now, 'seconds'),
+      );
+
+      return {
+        data: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          type: 'Bearer',
+          expires_at: accessTokenExpiry.valueOf(),
+          role: user.role,
+        },
+      };
+    }
+
+    throw new AccessDeniedError(
+      'Incorrect email or password.',
+      ErrorCodes.INVALID_CREDENTIALS,
     );
   }
 }
