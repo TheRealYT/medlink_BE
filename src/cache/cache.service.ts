@@ -19,7 +19,9 @@ export class CacheService {
 
     try {
       if (value) return JSON.parse(value) as T;
-    } catch (e) {}
+    } catch (e) {
+      // JSON parse error
+    }
 
     return null;
   }

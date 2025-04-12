@@ -21,7 +21,7 @@ const ACCESS_TOKEN_EXPIRY = 24; // in hours
 const REFRESH_TOKEN_EXPIRY = 30; // in days
 
 class AuthController {
-  async signup(data: Yup.InferType<typeof SignupDto>) {
+  async signup(this: void, data: Yup.InferType<typeof SignupDto>) {
     const key = authService.getSignupOtpKey(data.email, data.user_type);
 
     // check if otp exists
@@ -80,7 +80,7 @@ class AuthController {
   }
 
   // TODO: add rate limiting
-  async verifyEmail(data: Yup.InferType<typeof VerifyEmailDto>) {
+  async verifyEmail(this: void, data: Yup.InferType<typeof VerifyEmailDto>) {
     const key = authService.getSignupOtpKey(data.email, data.user_type);
     const user = await cacheService.getJSON<SignupUserInfo>(key);
 
@@ -105,7 +105,7 @@ class AuthController {
     });
   }
 
-  async login(data: Yup.InferType<typeof LoginDto>) {
+  async login(this: void, data: Yup.InferType<typeof LoginDto>) {
     const user = await userService.findUser(data.email, data.user_type);
     const key = authService.getSignupOtpKey(data.email, data.user_type);
 

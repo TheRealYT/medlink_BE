@@ -49,7 +49,7 @@ function validate<T extends Schema>(target: Content, type: ObjectSchema<T>) {
   }
 
   return async (req: Request, _res: Response, next: NextFunction) => {
-    const rawData = req[key]; // lookup
+    const rawData = req[key] as Data; // lookup
     const data: Data =
       rawData == null || typeof rawData == 'undefined' ? {} : rawData;
 
@@ -92,7 +92,7 @@ export function query<T extends Schema>(type: ObjectSchema<T>) {
 type TokenTypes = 'Bearer' | 'Api-Key' | 'Basic' | 'Custom' | 'OAuth2';
 
 // extract token from authorization header
-export function token(type?: TokenTypes | string) {
+export function token(type?: TokenTypes) {
   return (req: Request, _res: Response, next: NextFunction) => {
     const [specifiedType, token] = req.headers.authorization?.split(' ') ?? [];
 

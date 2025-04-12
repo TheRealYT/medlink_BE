@@ -7,7 +7,7 @@ class AuthService {
   }
 
   // get an access token cache key
-  getAccessTokenKey(token: string) {
+  getAccessTokenKey(this: void, token: string) {
     return `access-${token}`;
   }
 
