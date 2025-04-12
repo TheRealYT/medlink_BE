@@ -22,7 +22,7 @@ const REFRESH_TOKEN_EXPIRY = 30; // in days
 
 class AuthController {
   async signup(data: Yup.InferType<typeof SignupDto>) {
-    const key = authService.getSignupOtpKey(data.email, data.userType);
+    const key = authService.getSignupOtpKey(data.email, data.user_type);
 
     // check if otp exists
     if (await cacheService.has(key)) {
@@ -41,7 +41,7 @@ class AuthController {
       }
     }
 
-    if (await userService.userExists(data.email, data.userType)) {
+    if (await userService.userExists(data.email, data.user_type)) {
       const message = 'Email already exists.';
 
       throw new BadRequestError(message, ErrorCodes.EMAIL_EXISTS, {
@@ -61,7 +61,9 @@ class AuthController {
     console.log(otp);
 
     const value: SignupUserInfo = {
-      ...data,
+      fullName: data.full_name,
+      email: data.email,
+      userType: data.user_type,
       password: await cryptoService.hash(data.password),
       otpHash: hash,
     };
@@ -79,7 +81,7 @@ class AuthController {
 
   // TODO: add rate limiting
   async verifyEmail(data: Yup.InferType<typeof VerifyEmailDto>) {
-    const key = authService.getSignupOtpKey(data.email, data.userType);
+    const key = authService.getSignupOtpKey(data.email, data.user_type);
     const user = await cacheService.getJSON<SignupUserInfo>(key);
 
     // check if otp exists
@@ -104,8 +106,8 @@ class AuthController {
   }
 
   async login(data: Yup.InferType<typeof LoginDto>) {
-    const user = await userService.findUser(data.email, data.userType);
-    const key = authService.getSignupOtpKey(data.email, data.userType);
+    const user = await userService.findUser(data.email, data.user_type);
+    const key = authService.getSignupOtpKey(data.email, data.user_type);
 
     // check if email is on signup verification
     if (await cacheService.has(key))
@@ -149,7 +151,7 @@ class AuthController {
           refresh_token: refreshToken,
           type: 'Bearer',
           expires_at: accessTokenExpiry.valueOf(),
-          userType: user.userType,
+          user_type: user.userType,
         },
       };
     }

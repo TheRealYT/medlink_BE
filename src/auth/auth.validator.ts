@@ -4,13 +4,13 @@ import { UserType } from '@/users/user.model';
 
 const email = Yup.string().email().required();
 
-const userType = Yup.mixed<UserType>()
+const user_type = Yup.mixed<UserType>()
   .oneOf(Object.values(UserType) as UserType[])
   .required();
 
 export const VerifyEmailDto = Yup.object().shape({
   email,
-  userType,
+  user_type,
   otp_code: Yup.string()
     .min(4, 'Code must be at least 4 characters long')
     .required(),
@@ -32,12 +32,12 @@ export const SignupDto = Yup.object().shape({
       'Password must contain at least one special character',
     )
     .required('Password is required'),
-  userType,
+  user_type,
 });
 
 export const LoginDto = Yup.object().shape({
   email,
-  userType,
+  user_type,
   password: Yup.string().required(),
   remember_me: Yup.boolean().default(false),
 });

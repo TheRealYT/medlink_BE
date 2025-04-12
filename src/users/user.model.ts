@@ -13,7 +13,7 @@ export enum UserType {
 
 export const UserSchema = new Schema(
   {
-    full_name: {
+    fullName: {
       type: String,
       required: true,
     },
