@@ -9,25 +9,20 @@ import {
   AccessDeniedError,
   BadRequestError,
   ErrorCodes,
-  UnauthorizedError,
+  NotFoundError,
 } from '@/utils/HttpError';
-import {
-  LoginDto,
-  SendEmailDto,
-  SignupDto,
-  VerifyEmailDto,
-} from '@/auth/auth.validator';
-import { UserRole, UserSession } from '@/users/user.model';
+import { LoginDto, SignupDto, VerifyEmailDto } from '@/auth/auth.validator';
+import { UserSession } from '@/users/user.model';
+import { SignupUserInfo } from '@/auth/auth.model';
 
 const OTP_RESEND = 2; // in minutes
 const OTP_EXPIRY = 5; // in minutes
-const REG_TOKEN_EXPIRY = 24; // in hours
 const ACCESS_TOKEN_EXPIRY = 24; // in hours
 const REFRESH_TOKEN_EXPIRY = 30; // in days
 
 class AuthController {
-  async sendEmailCode(data: Yup.InferType<typeof SendEmailDto>) {
-    const key = authService.getSignupOtpKey(data.email, data.role);
+  async signup(data: Yup.InferType<typeof SignupDto>) {
+    const key = authService.getSignupOtpKey(data.email, data.userType);
 
     // check if otp exists
     if (await cacheService.has(key)) {
@@ -41,9 +36,17 @@ class AuthController {
 
         if (!resend)
           throw new BadRequestError(
-            'Code already sent, try after a few moments.',
+            'A verification code already sent to your email, resend after a few moments or check your inbox.',
           );
       }
+    }
+
+    if (await userService.userExists(data.email, data.userType)) {
+      const message = 'Email already exists.';
+
+      throw new BadRequestError(message, ErrorCodes.EMAIL_EXISTS, {
+        email: message,
+      });
     }
 
     // check email first to avoid delay from time calculations
@@ -56,10 +59,15 @@ class AuthController {
 
     // TODO: send email
     console.log(otp);
-    const ttl = expiry.diff(now, 'seconds');
-    await cacheService.set(key, hash, ttl);
 
-    // return uniform response to prevent email enumeration or guessing
+    const value: SignupUserInfo = {
+      ...data,
+      password: await cryptoService.hash(data.password),
+      otpHash: hash,
+    };
+    const ttl = expiry.diff(now, 'seconds');
+    await cacheService.setJSON(key, value, ttl);
+
     return {
       message: 'A verification code has been sent to your email address.',
       data: {
@@ -71,67 +79,39 @@ class AuthController {
 
   // TODO: add rate limiting
   async verifyEmail(data: Yup.InferType<typeof VerifyEmailDto>) {
-    const key = authService.getSignupOtpKey(data.email, data.role);
-    const hash = await cacheService.get(key);
+    const key = authService.getSignupOtpKey(data.email, data.userType);
+    const user = await cacheService.getJSON<SignupUserInfo>(key);
 
     // check if otp exists
-    if (hash && (await cryptoService.compare(data.code, hash))) {
-      const token = await cryptoService.generateSessionId();
-      const now = dayjs();
-      const tokenExpiry = now.add(REG_TOKEN_EXPIRY, 'hours');
+    if (user == null)
+      throw new NotFoundError(
+        "Verification doesn't exist, it is either expired or completed.",
+      );
 
-      const ttl = tokenExpiry.diff(now, 'seconds');
-
-      const value = {
-        email: data.email,
-        role: data.role,
-      };
-
-      await cacheService.setJSON(token, value, ttl);
+    if (await cryptoService.compare(data.otp_code, user.otpHash)) {
       await cacheService.del(key);
-
-      return {
-        data: {
-          signup_token: token,
-          type: 'Bearer',
-          expires_at: tokenExpiry.valueOf(),
-        },
-      };
-    }
-
-    // no information disclosure about non-existing email
-    throw new BadRequestError('Incorrect code.');
-  }
-
-  async signup(data: Yup.InferType<typeof SignupDto>, token: string) {
-    const user = await cacheService.getJSON<{ email: string; role: UserRole }>(
-      token,
-    );
-    if (user) {
-      await cacheService.del(token);
-
-      // safe to tell email existence
-      if (await userService.emailExists(user.email, user.role))
-        throw new BadRequestError(
-          'Email address already exists.',
-          ErrorCodes.EMAIL_EXISTS,
-        );
-
-      await userService.register({ ...data, ...user });
+      await userService.register({ ...user });
 
       return {
         statusCode: 201,
       };
     }
 
-    throw new UnauthorizedError(
-      'Authorization required.',
-      ErrorCodes.AUTH_REQUIRED,
-    );
+    const message = 'Incorrect otp code.';
+    throw new BadRequestError(message, undefined, {
+      otp_code: message,
+    });
   }
 
   async login(data: Yup.InferType<typeof LoginDto>) {
-    const user = await userService.findUser(data.email, data.role);
+    const user = await userService.findUser(data.email, data.userType);
+    const key = authService.getSignupOtpKey(data.email, data.userType);
+
+    // check if email is on signup verification
+    if (await cacheService.has(key))
+      throw new BadRequestError(
+        'Please goto signup page to complete account registration first.',
+      );
 
     if (
       user != null &&
@@ -149,7 +129,7 @@ class AuthController {
       const value: UserSession = {
         id: user._id.toString(),
         email: user.email,
-        role: user.role,
+        userType: user.userType,
       };
 
       await cacheService.setJSON(
@@ -169,7 +149,7 @@ class AuthController {
           refresh_token: refreshToken,
           type: 'Bearer',
           expires_at: accessTokenExpiry.valueOf(),
-          role: user.role,
+          userType: user.userType,
         },
       };
     }
