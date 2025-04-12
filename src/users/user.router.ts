@@ -6,6 +6,6 @@ import userController from '@/users/user.controller';
 
 const router = Router();
 
-router.post('/profile', authGuard(), pass(userController.getProfile));
+router.get('/profile', authGuard(), pass(userController.getProfile));
 
 export default router;
