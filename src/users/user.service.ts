@@ -7,6 +7,14 @@ class UserService {
     return exists != null;
   }
 
+  async findUser(email: string, role: UserRole) {
+    return UserModel.findOne({ email, role });
+  }
+
+  async findById(id: string) {
+    return UserModel.findById(id);
+  }
+
   async register(user: Record<keyof typeof UserModel.schema.obj, any>) {
     user.password = await cryptoService.hash(user.password);
     return new UserModel(user).save();
