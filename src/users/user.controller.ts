@@ -3,7 +3,7 @@ import userService from '@/users/user.service';
 import { NotFoundError } from '@/utils/HttpError';
 
 class UserController {
-  async getProfile(session: UserSession) {
+  async getProfile(this: void, session: UserSession) {
     const user = await userService.findById(session.id);
 
     if (user == null) throw new NotFoundError('User could not be found.');
@@ -11,9 +11,9 @@ class UserController {
     return {
       data: {
         id: user._id.toString(),
-        full_name: user.full_name,
+        full_name: user.fullName,
         email: user.email,
-        userType: user.userType,
+        user_type: user.userType,
         created_at: user.createdAt,
         updated_at: user.updatedAt,
       },
