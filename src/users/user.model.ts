@@ -1,4 +1,10 @@
-import { Schema, model } from 'mongoose';
+import { model, Schema } from 'mongoose';
+
+export type UserSession = {
+  id: string;
+  email: string;
+  role: UserRole;
+};
 
 export enum UserRole {
   CUSTOMER = 'customer',
