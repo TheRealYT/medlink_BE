@@ -1,7 +1,12 @@
 import { Router } from 'express';
 
 import { body, pass, token } from '@/utils/parser';
-import { SendEmailDto, SignupDto, VerifyEmailDto } from '@/auth/auth.validator';
+import {
+  LoginDto,
+  SendEmailDto,
+  SignupDto,
+  VerifyEmailDto,
+} from '@/auth/auth.validator';
 import authController from '@/auth/auth.controller';
 
 const router = Router();
@@ -24,5 +29,7 @@ router.post(
   token('Bearer'),
   pass(authController.signup),
 );
+
+router.post('/login', body(LoginDto), pass(authController.login));
 
 export default router;
