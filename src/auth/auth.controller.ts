@@ -1,4 +1,4 @@
-import Yup from 'yup';
+import * as Yup from 'yup';
 import dayjs from 'dayjs';
 
 import authService from '@/auth/auth.service';

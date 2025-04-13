@@ -1,7 +1,7 @@
 import process from 'node:process';
 
 import dotenv from 'dotenv';
-import Yup from 'yup';
+import * as Yup from 'yup';
 
 import { logger } from '@/utils';
 

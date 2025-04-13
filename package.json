@@ -4,11 +4,10 @@
   "description": "",
   "author": "Yonathan Tesfaye",
   "private": true,
-  "type": "module",
   "license": "UNLICENSED",
   "scripts": {
     "start": "node dist/main.js",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "dev": "tsx src/main.ts",
     "watch": "tsx --watch src/main.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -24,6 +23,7 @@
     "eslint-plugin-prettier": "^5.2.6",
     "globals": "^16.0.0",
     "prettier": "^3.5.3",
+    "tsc-alias": "^1.8.15",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.1"
