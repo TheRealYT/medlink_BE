@@ -12,7 +12,7 @@ class AuthService {
   }
 
   // get a refresh token cache key
-  getRefreshTokenKey(token: string) {
+  getRefreshTokenKey(this: void, token: string) {
     return `refresh-${token}`;
   }
 }
