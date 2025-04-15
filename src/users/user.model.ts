@@ -2,8 +2,9 @@ import { model, Schema } from 'mongoose';
 
 export type UserSession = {
   id: string;
-  email: string;
   userType: UserType;
+  accessToken: string;
+  refreshToken: string;
 };
 
 export enum UserType {

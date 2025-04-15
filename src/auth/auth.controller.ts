@@ -130,8 +130,9 @@ class AuthController {
 
       const value: UserSession = {
         id: user._id.toString(),
-        email: user.email,
         userType: user.userType,
+        accessToken,
+        refreshToken,
       };
 
       await cacheService.setJSON(
