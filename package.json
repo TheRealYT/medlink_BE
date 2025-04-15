@@ -1,0 +1,42 @@
+{
+  "name": "medlink",
+  "version": "0.1.0",
+  "description": "",
+  "author": "Yonathan Tesfaye",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc && tsc-alias",
+    "dev": "tsx src/main.ts",
+    "watch": "tsx --watch src/main.ts",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "eslint \"{src,test}/**/*.ts\" --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@types/express": "^5.0.1",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.14.0",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "tsc-alias": "^1.8.15",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.1"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "ioredis": "^5.6.0",
+    "mongoose": "^8.13.2",
+    "morgan": "^1.10.0",
+    "winston": "^3.17.0",
+    "yup": "^1.6.1"
+  }
+}
