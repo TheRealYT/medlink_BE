@@ -162,6 +162,48 @@ class AuthController {
       ErrorCodes.INVALID_CREDENTIALS,
     );
   }
+
+  async refreshToken(this: void, session: UserSession) {
+    // generate a new access token
+    const accessToken = await cryptoService.generateSessionId();
+
+    const now = dayjs();
+    const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
+
+    const value: UserSession = {
+      ...session,
+      accessToken, // replace by the new access token
+    };
+
+    // add access token to cache
+    await cacheService.setJSON(
+      authService.getAccessTokenKey(accessToken),
+      value,
+      accessTokenExpiry.diff(now, 'seconds'),
+    );
+
+    // update refresh token cache
+    await cacheService.setJSON(
+      authService.getRefreshTokenKey(session.refreshToken),
+      value,
+    );
+
+    return {
+      data: {
+        access_token: accessToken,
+        type: 'Bearer',
+        expires_at: accessTokenExpiry.valueOf(),
+        user_type: session.userType,
+      },
+    };
+  }
+
+  async logout(this: void, session: UserSession) {
+    await cacheService.del(
+      authService.getAccessTokenKey(session.accessToken),
+      authService.getRefreshTokenKey(session.refreshToken),
+    );
+  }
 }
 
 export default new AuthController();
