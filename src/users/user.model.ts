@@ -4,7 +4,7 @@ export type UserSession = {
   id: string;
   userType: UserType;
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
 };
 
 export enum UserType {

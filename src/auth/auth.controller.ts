@@ -119,37 +119,43 @@ class AuthController {
       user != null &&
       (await cryptoService.compare(data.password, user.password))
     ) {
-      const [accessToken, refreshToken] = [
-        await cryptoService.generateSessionId(),
-        await cryptoService.generateSessionId(),
-      ];
-
       const now = dayjs();
-      const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
-      const refreshTokenExpiry = now.add(REFRESH_TOKEN_EXPIRY, 'days');
 
-      const value: UserSession = {
+      // generate access token
+      const accessToken = await cryptoService.generateSessionId();
+      const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
+
+      const session: UserSession = {
         id: user._id.toString(),
         userType: user.userType,
         accessToken,
-        refreshToken,
       };
+
+      if (data.remember_me) {
+        // generate refreshToken for longer sessions
+        const refreshToken = await cryptoService.generateSessionId();
+        const refreshTokenExpiry = now.add(REFRESH_TOKEN_EXPIRY, 'days');
+
+        // add to session cache object
+        session.refreshToken = refreshToken;
+
+        await cacheService.setJSON(
+          authService.getRefreshTokenKey(refreshToken),
+          session,
+          refreshTokenExpiry.diff(now, 'seconds'),
+        );
+      }
 
       await cacheService.setJSON(
         authService.getAccessTokenKey(accessToken),
-        value,
+        session,
         accessTokenExpiry.diff(now, 'seconds'),
-      );
-      await cacheService.setJSON(
-        authService.getRefreshTokenKey(refreshToken),
-        value,
-        refreshTokenExpiry.diff(now, 'seconds'),
       );
 
       return {
         data: {
           access_token: accessToken,
-          refresh_token: refreshToken,
+          refresh_token: session.refreshToken,
           type: 'Bearer',
           expires_at: accessTokenExpiry.valueOf(),
           user_type: user.userType,
@@ -184,7 +190,7 @@ class AuthController {
 
     // update refresh token cache
     await cacheService.setJSON(
-      authService.getRefreshTokenKey(session.refreshToken),
+      authService.getRefreshTokenKey(<string>session.refreshToken),
       value,
     );
 
@@ -199,10 +205,13 @@ class AuthController {
   }
 
   async logout(this: void, session: UserSession) {
-    await cacheService.del(
-      authService.getAccessTokenKey(session.accessToken),
-      authService.getRefreshTokenKey(session.refreshToken),
-    );
+    const keys = [authService.getAccessTokenKey(session.accessToken)];
+
+    if (session.refreshToken != null) {
+      keys.push(authService.getRefreshTokenKey(session.refreshToken));
+    }
+
+    await cacheService.del(...keys);
   }
 }
 
