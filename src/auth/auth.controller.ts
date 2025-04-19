@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 import authService from '@/auth/auth.service';
 import cacheService from '@/cache/cache.service';
@@ -14,6 +15,11 @@ import {
 import { LoginDto, SignupDto, VerifyEmailDto } from '@/auth/auth.validator';
 import { UserSession } from '@/users/user.model';
 import { SignupUserInfo } from '@/auth/auth.model';
+import emailService from '@/email/email.service';
+import emailTemplates from '@/email/email.templates';
+import { logger } from '@/utils';
+
+dayjs.extend(relativeTime);
 
 const OTP_RESEND = 2; // in minutes
 const OTP_EXPIRY = 5; // in minutes
@@ -58,8 +64,16 @@ class AuthController {
     const resend = now.add(OTP_RESEND, 'minutes');
     const expiry = now.add(OTP_EXPIRY, 'minutes');
 
-    // TODO: send email
-    console.log(otp);
+    const message = await emailTemplates.useTemplate(
+      'signup_verification',
+      otp,
+      expiry.fromNow(true),
+    );
+    emailService
+      .send(data.email, message)
+      .catch((err) =>
+        logger.error('Failed to send signup verification email:', err),
+      );
 
     const value: SignupUserInfo = {
       fullName: data.full_name,
