@@ -32,7 +32,8 @@ class AuthController {
         const expiryTime = now.add(timeLeft, 'seconds');
 
         // check if the threshold time has passed for resend
-        const resend = dayjs().isAfter(expiryTime.add(OTP_RESEND, 'minutes'));
+        const sentTime = expiryTime.subtract(OTP_EXPIRY, 'minutes');
+        const resend = dayjs().isAfter(sentTime.add(OTP_RESEND, 'minutes'));
 
         if (!resend)
           throw new BadRequestError(

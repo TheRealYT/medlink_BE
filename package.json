@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "start": "node dist/main.js",
-    "build": "tsc && tsc-alias",
+    "build": "gulp build && tsc-alias",
     "dev": "tsx src/main.ts",
     "watch": "tsx --watch src/main.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
