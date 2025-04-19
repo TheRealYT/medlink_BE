@@ -18,6 +18,7 @@ const envSchema = Yup.object().shape({
     .required('Redis port is required'),
   PORT: Yup.number()
     .default(3000)
+    .integer()
     .min(1024)
     .max(65535)
     .required('Port number must be between 1024 and 65535'),
