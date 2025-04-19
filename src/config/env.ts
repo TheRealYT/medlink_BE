@@ -24,6 +24,7 @@ const envSchema = Yup.object().shape({
     .required('Port number must be between 1024 and 65535'),
 
   SMTP_PORT: Yup.number().oneOf([25, 465, 587, 2465, 2587]).required(),
+  SMTP_SECURE: Yup.boolean().default(true),
   SMTP_HOST: Yup.string()
     .matches(/^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/, 'Invalid SMTP host')
     .required(),
