@@ -23,6 +23,8 @@
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
     "globals": "^16.0.0",
+    "gulp": "^5.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "prettier": "^3.5.3",
     "tsc-alias": "^1.8.15",
     "tsx": "^4.19.3",
