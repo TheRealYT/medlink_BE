@@ -21,6 +21,9 @@ class EmailService {
       subject: message.subject,
       text: !message.isHtml ? message.content : undefined,
       html: message.isHtml ? message.content : undefined,
+      headers: {
+        'X-Entity-Ref-ID': Date.now().toString(), // prevent threading on Gmail
+      },
     });
   }
 }
