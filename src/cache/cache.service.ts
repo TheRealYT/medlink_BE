@@ -1,11 +1,15 @@
 import { redis } from '@/config/redis';
 
 export class CacheService {
-  async set(key: string, value: string, ttl: number): Promise<void> {
-    await redis.set(key, value, 'EX', ttl);
+  async set(key: string, value: string, ttl?: number): Promise<void> {
+    if (ttl != undefined) {
+      await redis.set(key, value, 'EX', ttl);
+    } else {
+      await redis.set(key, value, 'KEEPTTL');
+    }
   }
 
-  async setJSON(key: string, value: object, ttl: number): Promise<void> {
+  async setJSON(key: string, value: object, ttl?: number): Promise<void> {
     await this.set(key, JSON.stringify(value), ttl);
   }
 
@@ -26,8 +30,8 @@ export class CacheService {
     return null;
   }
 
-  async del(key: string): Promise<void> {
-    await redis.del(key);
+  async del(...keys: string[]): Promise<void> {
+    await redis.del(keys);
   }
 
   async has(key: string): Promise<boolean> {

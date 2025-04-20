@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 import authService from '@/auth/auth.service';
 import cacheService from '@/cache/cache.service';
@@ -14,6 +15,11 @@ import {
 import { LoginDto, SignupDto, VerifyEmailDto } from '@/auth/auth.validator';
 import { UserSession } from '@/users/user.model';
 import { SignupUserInfo } from '@/auth/auth.model';
+import emailService from '@/email/email.service';
+import emailTemplates from '@/email/email.templates';
+import { logger } from '@/utils';
+
+dayjs.extend(relativeTime);
 
 const OTP_RESEND = 2; // in minutes
 const OTP_EXPIRY = 5; // in minutes
@@ -32,7 +38,8 @@ class AuthController {
         const expiryTime = now.add(timeLeft, 'seconds');
 
         // check if the threshold time has passed for resend
-        const resend = dayjs().isAfter(expiryTime.add(OTP_RESEND, 'minutes'));
+        const sentTime = expiryTime.subtract(OTP_EXPIRY, 'minutes');
+        const resend = dayjs().isAfter(sentTime.add(OTP_RESEND, 'minutes'));
 
         if (!resend)
           throw new BadRequestError(
@@ -57,8 +64,16 @@ class AuthController {
     const resend = now.add(OTP_RESEND, 'minutes');
     const expiry = now.add(OTP_EXPIRY, 'minutes');
 
-    // TODO: send email
-    console.log(otp);
+    const message = await emailTemplates.useTemplate(
+      'signup_verification',
+      otp,
+      expiry.fromNow(true),
+    );
+    emailService
+      .send(data.email, message)
+      .catch((err) =>
+        logger.error('Failed to send signup verification email:', err),
+      );
 
     const value: SignupUserInfo = {
       fullName: data.full_name,
@@ -119,36 +134,43 @@ class AuthController {
       user != null &&
       (await cryptoService.compare(data.password, user.password))
     ) {
-      const [accessToken, refreshToken] = [
-        await cryptoService.generateSessionId(),
-        await cryptoService.generateSessionId(),
-      ];
-
       const now = dayjs();
-      const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
-      const refreshTokenExpiry = now.add(REFRESH_TOKEN_EXPIRY, 'days');
 
-      const value: UserSession = {
+      // generate access token
+      const accessToken = await cryptoService.generateSessionId();
+      const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
+
+      const session: UserSession = {
         id: user._id.toString(),
-        email: user.email,
         userType: user.userType,
+        accessToken,
       };
+
+      if (data.remember_me) {
+        // generate refreshToken for longer sessions
+        const refreshToken = await cryptoService.generateSessionId();
+        const refreshTokenExpiry = now.add(REFRESH_TOKEN_EXPIRY, 'days');
+
+        // add to session cache object
+        session.refreshToken = refreshToken;
+
+        await cacheService.setJSON(
+          authService.getRefreshTokenKey(refreshToken),
+          session,
+          refreshTokenExpiry.diff(now, 'seconds'),
+        );
+      }
 
       await cacheService.setJSON(
         authService.getAccessTokenKey(accessToken),
-        value,
+        session,
         accessTokenExpiry.diff(now, 'seconds'),
-      );
-      await cacheService.setJSON(
-        authService.getRefreshTokenKey(refreshToken),
-        value,
-        refreshTokenExpiry.diff(now, 'seconds'),
       );
 
       return {
         data: {
           access_token: accessToken,
-          refresh_token: refreshToken,
+          refresh_token: session.refreshToken,
           type: 'Bearer',
           expires_at: accessTokenExpiry.valueOf(),
           user_type: user.userType,
@@ -160,6 +182,51 @@ class AuthController {
       'Incorrect email or password.',
       ErrorCodes.INVALID_CREDENTIALS,
     );
+  }
+
+  async refreshToken(this: void, session: UserSession) {
+    // generate a new access token
+    const accessToken = await cryptoService.generateSessionId();
+
+    const now = dayjs();
+    const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
+
+    const value: UserSession = {
+      ...session,
+      accessToken, // replace by the new access token
+    };
+
+    // add access token to cache
+    await cacheService.setJSON(
+      authService.getAccessTokenKey(accessToken),
+      value,
+      accessTokenExpiry.diff(now, 'seconds'),
+    );
+
+    // update refresh token cache
+    await cacheService.setJSON(
+      authService.getRefreshTokenKey(<string>session.refreshToken),
+      value,
+    );
+
+    return {
+      data: {
+        access_token: accessToken,
+        type: 'Bearer',
+        expires_at: accessTokenExpiry.valueOf(),
+        user_type: session.userType,
+      },
+    };
+  }
+
+  async logout(this: void, session: UserSession) {
+    const keys = [authService.getAccessTokenKey(session.accessToken)];
+
+    if (session.refreshToken != null) {
+      keys.push(authService.getRefreshTokenKey(session.refreshToken));
+    }
+
+    await cacheService.del(...keys);
   }
 }
 
