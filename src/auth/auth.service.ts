@@ -15,6 +15,10 @@ class AuthService {
   getRefreshTokenKey(this: void, token: string) {
     return `refresh-${token}`;
   }
+
+  getPassResetTokenKey(email: string, userType: UserType) {
+    return `${email}-${userType}-pass-otp`;
+  }
 }
 
 export default new AuthService();
