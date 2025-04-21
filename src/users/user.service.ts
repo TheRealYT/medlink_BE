@@ -1,6 +1,7 @@
 import { Types, InferSchemaType } from 'mongoose';
 
 import { UserModel, UserSchema, UserType } from '@/users/user.model';
+import cryptoService from '@/crypto/crypto.service';
 
 class UserService {
   async userExists(email: string, userType: UserType) {
@@ -21,6 +22,15 @@ class UserService {
     user: Omit<InferSchemaType<typeof UserSchema>, 'createdAt' | 'updatedAt'>,
   ) {
     return new UserModel(user).save();
+  }
+
+  async setPassword(email: string, userType: UserType, password: string) {
+    return UserModel.findOneAndUpdate(
+      { email, userType },
+      {
+        password: await cryptoService.hash(password),
+      },
+    );
   }
 }
 
