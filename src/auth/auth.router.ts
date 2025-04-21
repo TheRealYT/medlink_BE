@@ -1,7 +1,13 @@
 import { Router } from 'express';
 
 import { body, pass } from '@/utils/parser';
-import { LoginDto, SignupDto, VerifyEmailDto } from '@/auth/auth.validator';
+import {
+  ForgetPassDto,
+  LoginDto,
+  ResetPassDto,
+  SignupDto,
+  VerifyEmailDto,
+} from '@/auth/auth.validator';
 import authController from '@/auth/auth.controller';
 import authGuard from '@/auth/auth.guard';
 import authService from '@/auth/auth.service';
@@ -25,5 +31,17 @@ router.post(
 );
 
 router.delete('/logout', authGuard(), pass(authController.logout));
+
+router.post(
+  '/forgot-password',
+  body(ForgetPassDto),
+  pass(authController.forgetPassword),
+);
+
+router.post(
+  '/reset-password',
+  body(ResetPassDto),
+  pass(authController.resetPassword),
+);
 
 export default router;
