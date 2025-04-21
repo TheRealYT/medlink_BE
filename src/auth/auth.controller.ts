@@ -18,6 +18,7 @@ import { SignupUserInfo } from '@/auth/auth.model';
 import emailService from '@/email/email.service';
 import emailTemplates from '@/email/email.templates';
 import { logger } from '@/utils';
+import { TIME } from '@/common/types';
 
 dayjs.extend(relativeTime);
 
@@ -25,6 +26,11 @@ const OTP_RESEND = 2; // in minutes
 const OTP_EXPIRY = 5; // in minutes
 const ACCESS_TOKEN_EXPIRY = 24; // in hours
 const REFRESH_TOKEN_EXPIRY = 30; // in days
+// ensure time consistency
+const OTP_RESEND: TIME = [2, 'minutes'];
+const OTP_EXPIRY: TIME = [5, 'minutes'];
+const ACCESS_TOKEN_EXPIRY: TIME = [24, 'hours'];
+const REFRESH_TOKEN_EXPIRY: TIME = [30, 'days'];
 
 class AuthController {
   async signup(this: void, data: Yup.InferType<typeof SignupDto>) {
@@ -38,8 +44,8 @@ class AuthController {
         const expiryTime = now.add(timeLeft, 'seconds');
 
         // check if the threshold time has passed for resend
-        const sentTime = expiryTime.subtract(OTP_EXPIRY, 'minutes');
-        const resend = dayjs().isAfter(sentTime.add(OTP_RESEND, 'minutes'));
+        const sentTime = expiryTime.subtract(...OTP_EXPIRY);
+        const resend = dayjs().isAfter(sentTime.add(...OTP_RESEND));
 
         if (!resend)
           throw new BadRequestError(
@@ -61,8 +67,8 @@ class AuthController {
     const hash = await cryptoService.hash(otp);
 
     const now = dayjs();
-    const resend = now.add(OTP_RESEND, 'minutes');
-    const expiry = now.add(OTP_EXPIRY, 'minutes');
+    const resend = now.add(...OTP_RESEND);
+    const expiry = now.add(...OTP_EXPIRY);
 
     const message = await emailTemplates.useTemplate(
       'signup_verification',
@@ -138,7 +144,7 @@ class AuthController {
 
       // generate access token
       const accessToken = await cryptoService.generateSessionId();
-      const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
+      const accessTokenExpiry = now.add(...ACCESS_TOKEN_EXPIRY);
 
       const session: UserSession = {
         id: user._id.toString(),
@@ -149,7 +155,7 @@ class AuthController {
       if (data.remember_me) {
         // generate refreshToken for longer sessions
         const refreshToken = await cryptoService.generateSessionId();
-        const refreshTokenExpiry = now.add(REFRESH_TOKEN_EXPIRY, 'days');
+        const refreshTokenExpiry = now.add(...REFRESH_TOKEN_EXPIRY);
 
         // add to session cache object
         session.refreshToken = refreshToken;
@@ -189,7 +195,7 @@ class AuthController {
     const accessToken = await cryptoService.generateSessionId();
 
     const now = dayjs();
-    const accessTokenExpiry = now.add(ACCESS_TOKEN_EXPIRY, 'hours');
+    const accessTokenExpiry = now.add(...ACCESS_TOKEN_EXPIRY);
 
     const value: UserSession = {
       ...session,
