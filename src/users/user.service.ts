@@ -1,4 +1,6 @@
-import { UserModel, UserType } from '@/users/user.model';
+import { Types, InferSchemaType } from 'mongoose';
+
+import { UserModel, UserSchema, UserType } from '@/users/user.model';
 
 class UserService {
   async userExists(email: string, userType: UserType) {
@@ -16,7 +18,7 @@ class UserService {
 
   // make sure the password is hashed
   async register(
-    user: Partial<Record<keyof typeof UserModel.schema.obj, any>>,
+    user: Omit<InferSchemaType<typeof UserSchema>, 'createdAt' | 'updatedAt'>,
   ) {
     return new UserModel(user).save();
   }
