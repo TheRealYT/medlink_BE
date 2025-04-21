@@ -39,7 +39,7 @@ class CustomerController {
               emergency_contact: profile?.emergencyContact,
               health_details: profile?.healthDetails as string[],
               phone_number: profile?.phoneNumber,
-              profile_picture: null,
+              profile_picture: profile?.profilePicture,
             }
           : null,
       },
@@ -50,6 +50,7 @@ class CustomerController {
     this: void,
     session: UserSession,
     data: Yup.InferType<typeof CustomerProfileDto>,
+    profilePicture?: string,
   ) {
     await customerService.setProfile(session.id, {
       alternatePhoneNumber: data?.alternate_phone_number,
@@ -63,7 +64,7 @@ class CustomerController {
       emergencyContact: data?.emergency_contact,
       healthDetails: data?.health_details as string[],
       phoneNumber: data.phone_number,
-      profilePicture: null,
+      profilePicture,
     });
   }
 }
