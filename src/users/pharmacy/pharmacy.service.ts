@@ -13,7 +13,7 @@ class PharmacyService {
     userId: string | Types.ObjectId,
     profile: Omit<
       InferSchemaType<typeof PharmacySchema>,
-      'user' | 'createdAt' | 'updatedAt'
+      'user' | 'createdAt' | 'updatedAt' | 'verified' | 'rejectionMessage'
     >,
   ) {
     return PharmacyModel.updateOne(

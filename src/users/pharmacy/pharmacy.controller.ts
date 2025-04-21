@@ -59,6 +59,8 @@ class PharmacyController {
     await pharmacyService.setProfile(session.id, {
       description: data?.description,
       licenseNumber: data.license_number,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       openHours: data.open_hours,
       personName: data?.person_name,
       pharmacyName: data.pharmacy_name,
