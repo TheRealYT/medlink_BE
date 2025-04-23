@@ -31,10 +31,23 @@ const signupVerification = {
     '#VALIDITY#': validity,
   }),
 };
+
+const passReset = {
+  from: () => `${COMPANY} noreply@${getEnv('EMAIL_DOMAIN')}`,
+  subject: 'Reset Your Password',
+  load: (link: string, validity: string): Record<string, string> => ({
+    '#COMPANY#': COMPANY,
+    '#COPYRIGHT#': `© ${new Date().getFullYear()} ${COMPANY}. All rights reserved.`,
+    '#ADDRESS#': ADDRESS,
+    '#LINK#': link,
+    '#VALIDITY#': validity,
+  }),
+};
 // define more templates
 
 const Templates = {
   signup_verification: signupVerification,
+  password_reset: passReset,
   // add more templates
 };
 
@@ -46,7 +59,9 @@ class EmailTemplates {
     const template = Templates[name];
 
     // call `load()` with the correct arguments
-    const result = template.load(...(args as Parameters<typeof template.load>));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const result = template.load(...args);
     const content = await loadTemplate(name + '.html', result);
 
     return {

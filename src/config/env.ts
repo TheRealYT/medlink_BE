@@ -33,6 +33,7 @@ const envSchema = Yup.object().shape({
   EMAIL_DOMAIN: Yup.string()
     .matches(/^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/, 'Invalid email domain')
     .required(),
+  FRONTEND_URL: Yup.string().url(),
   // define more variables here
 });
 
