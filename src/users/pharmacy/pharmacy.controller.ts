@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 import { UserSession } from '@/users/user.model';
 import userService from '@/users/user.service';
-import { NotFoundError } from '@/utils/HttpError';
+import { BadRequestError, NotFoundError } from '@/utils/HttpError';
 import { PharmacyProfileDto } from '@/users/pharmacy/pharmacy.validator';
 import pharmacyService from '@/users/pharmacy/pharmacy.service';
 
@@ -54,8 +54,18 @@ class PharmacyController {
     this: void,
     session: UserSession,
     data: Yup.InferType<typeof PharmacyProfileDto>,
-    pharmacyLogo?: string,
   ) {
+    let pharmacyLogo: string | undefined = undefined;
+
+    if (data.image) {
+      const fileName = session.id;
+
+      const success = await userService.uploadProfile(fileName, data.image);
+      if (!success) throw new BadRequestError('Failed to upload image.');
+
+      pharmacyLogo = fileName;
+    }
+
     await pharmacyService.setProfile(session.id, {
       description: data?.description,
       licenseNumber: data.license_number,
