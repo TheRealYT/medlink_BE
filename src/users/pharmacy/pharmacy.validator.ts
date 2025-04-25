@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 
 import { DAYS } from '@/users/pharmacy/pharmacy.model';
+import { image } from '@/users/user.validator';
 
 const phoneRegex = /^[+]?[0-9]{7,15}$/;
 const zipCodeRegex = /^[0-9]{4,10}$/;
@@ -67,4 +68,5 @@ export const PharmacyProfileDto = Yup.object({
     .min(2, 'Person name must be at least 2 characters')
     .max(100, 'Person name must be at most 100 characters')
     .optional(),
+  image,
 });

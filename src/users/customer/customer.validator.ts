@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 import dayjs from 'dayjs';
 
 import { HealthCondition } from '@/users/customer/customer.model';
+import { image } from '@/users/user.validator';
 
 const phoneRegex = /^[+]?[0-9]{7,15}$/;
 const zipCodeRegex = /^[0-9]{4,10}$/;
@@ -60,6 +61,8 @@ export const CustomerProfileDto = Yup.object({
   emergency_contact: emergencyContact,
 
   health_details: healthDetails,
+
+  image,
 });
 
 export const CustomerProfileUpdateDto = Yup.object({
