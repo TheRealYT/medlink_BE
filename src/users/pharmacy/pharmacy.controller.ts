@@ -58,10 +58,8 @@ class PharmacyController {
     let pharmacyLogo: string | undefined = undefined;
 
     if (data.image) {
-      const fileName = session.id;
-
-      const success = await userService.uploadProfile(fileName, data.image);
-      if (!success) throw new BadRequestError('Failed to upload image.');
+      const fileName = await userService.uploadProfile(session.id, data.image);
+      if (!fileName) throw new BadRequestError('Failed to upload image.');
 
       pharmacyLogo = fileName;
     }

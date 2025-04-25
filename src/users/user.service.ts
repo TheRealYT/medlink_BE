@@ -39,6 +39,7 @@ class UserService {
     );
   }
 
+  // fileName without extension
   async uploadProfile(fileName: string, dataUrl: string) {
     // `data:image/png;base64,...`
 
@@ -51,10 +52,11 @@ class UserService {
     if (ext != null) {
       const buffer = Buffer.from(dataUrl.slice(end + 8), 'base64');
       try {
-        const filePath = path.join(PROFILE_DIR, `${fileName}.${ext}`);
+        const filenameExt = `${fileName}.${ext}`;
+        const filePath = path.join(PROFILE_DIR, filenameExt);
         await fs.writeFile(filePath, buffer);
 
-        return true;
+        return filenameExt;
       } catch (err) {
         logger.error('Failed to upload file:', err);
       }
