@@ -44,3 +44,8 @@ export const address = {
 };
 
 export const genderRegex = /^M|F$/;
+
+export const location = {
+  lat: Yup.number().required().min(-90).max(90), // latitude range [-90, 90]
+  lng: Yup.number().required().min(-180).max(180), // longitude range [-180, 180]
+};

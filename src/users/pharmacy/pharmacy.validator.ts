@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 import { DAYS } from '@/users/pharmacy/pharmacy.model';
-import { address, image, phoneRegex } from '@/users/user.validator';
+import { address, image, location, phoneRegex } from '@/users/user.validator';
 
 const phoneNumber = Yup.string().matches(
   phoneRegex,
@@ -36,6 +36,10 @@ export const PharmacyProfileDto = Yup.object({
     state: address.state.required('State is required'),
     zip_code: address.zip_code.required('ZIP code is required'),
   }).required('Pharmacy address is required'),
+  location: Yup.object({
+    lat: location.lat.required('Location is required'),
+    lng: location.lng.required('Location is required'),
+  }).required('Location is required'),
   license_number: Yup.string()
     .matches(
       /^[A-Z0-9-]+$/,
@@ -45,6 +49,7 @@ export const PharmacyProfileDto = Yup.object({
     .max(20, 'License number must be at most 20 characters')
     .required('License number is required'),
   open_hours: openHours,
+  delivery: Yup.boolean().default(false).optional(),
   pharmacy_name: Yup.string()
     .min(3, 'Pharmacy name must be at least 3 characters')
     .max(100, 'Pharmacy name must be at most 100 characters')
