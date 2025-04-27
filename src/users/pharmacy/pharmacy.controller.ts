@@ -40,6 +40,11 @@ class PharmacyController {
                 state: profile?.address?.state,
                 zip_code: profile?.address?.zipCode,
               },
+              location: {
+                lat: profile?.location?.lat,
+                lng: profile?.location?.lng,
+              },
+              delivery: profile?.delivery,
               phone_number: profile.phoneNumber,
               pharmacy_logo: profile.pharmacyLogo,
               verified: profile?.verified === true,
@@ -79,6 +84,11 @@ class PharmacyController {
         state: data.address.state,
         zipCode: data.address.zip_code,
       },
+      location: {
+        lat: data.location.lat,
+        lng: data.location.lng,
+      },
+      delivery: data.delivery,
       phoneNumber: data.phone_number,
       pharmacyLogo,
     });
