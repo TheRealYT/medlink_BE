@@ -39,6 +39,7 @@ class CustomerController {
               emergency_contact: profile?.emergencyContact,
               health_details: profile?.healthDetails as string[],
               phone_number: profile?.phoneNumber,
+              gender: profile?.gender,
               profile_picture: profile?.profilePicture,
             }
           : null,
@@ -72,6 +73,7 @@ class CustomerController {
       emergencyContact: data?.emergency_contact,
       healthDetails: data?.health_details as string[],
       phoneNumber: data.phone_number,
+      gender: data.gender,
       profilePicture,
     });
   }
