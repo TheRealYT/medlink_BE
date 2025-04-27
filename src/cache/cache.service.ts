@@ -34,9 +34,10 @@ export class CacheService {
     await redis.del(keys);
   }
 
-  async has(key: string): Promise<boolean> {
-    const exists = await redis.exists(key);
-    return exists === 1;
+  // checks if whether all the keys exist
+  async has(...keys: string[]): Promise<boolean> {
+    const exists = await redis.exists(keys);
+    return exists === keys.length;
   }
 
   // increment a key in Redis (e.g., counters, rate limits)
