@@ -55,11 +55,11 @@ export const PharmacySchema = new Schema(
             required: true,
           },
           open: {
-            type: String,
+            type: Number, // in minutes
             required: true,
           },
           close: {
-            type: String,
+            type: Number, // in minutes
             required: true,
           },
         },

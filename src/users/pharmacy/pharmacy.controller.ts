@@ -5,6 +5,7 @@ import userService from '@/users/user.service';
 import { BadRequestError, NotFoundError } from '@/utils/HttpError';
 import { PharmacyProfileDto } from '@/users/pharmacy/pharmacy.validator';
 import pharmacyService from '@/users/pharmacy/pharmacy.service';
+import { minutesToTimeStr, strTimeToMinutes } from '@/users/pharmacy/utils';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -30,7 +31,11 @@ class PharmacyController {
               updated_at: profile.updatedAt,
               description: profile?.description,
               license_number: profile?.licenseNumber,
-              open_hours: profile.openHours,
+              open_hours: profile.openHours.map(({ day, open, close }) => ({
+                day,
+                open: minutesToTimeStr(open),
+                close: minutesToTimeStr(close),
+              })),
               person_name: profile?.personName,
               pharmacy_name: profile.pharmacyName,
               website: profile?.website,
@@ -74,7 +79,11 @@ class PharmacyController {
       licenseNumber: data.license_number,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      openHours: data.open_hours,
+      openHours: data.open_hours.map(({ day, open, close }) => ({
+        day,
+        open: strTimeToMinutes(open),
+        close: strTimeToMinutes(close),
+      })),
       personName: data?.person_name,
       pharmacyName: data.pharmacy_name,
       website: data?.website,
