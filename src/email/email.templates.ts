@@ -35,11 +35,16 @@ const signupVerification = {
 const passReset = {
   from: () => `${COMPANY} noreply@${getEnv('EMAIL_DOMAIN')}`,
   subject: 'Reset Your Password',
-  load: (link: string, validity: string): Record<string, string> => ({
+  load: (
+    link: string,
+    otpCode: string,
+    validity: string,
+  ): Record<string, string> => ({
     '#COMPANY#': COMPANY,
     '#COPYRIGHT#': `© ${new Date().getFullYear()} ${COMPANY}. All rights reserved.`,
     '#ADDRESS#': ADDRESS,
     '#LINK#': link,
+    '#OTP_CODE#': otpCode,
     '#VALIDITY#': validity,
   }),
 };
