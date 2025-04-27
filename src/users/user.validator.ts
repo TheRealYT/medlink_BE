@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 export const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
 
-export const MAX_BASE64_LENGTH = Math.ceil((MAX_FILE_SIZE_BYTES * 4) / 3); // max size for undecoded base46
+export const MAX_BASE64_LENGTH = Math.ceil((MAX_FILE_SIZE_BYTES * 4) / 3); // max size for un-decoded base46
 
 export const MIME_TYPES: Record<string, string> = {
   'image/jpeg': 'jpeg',
@@ -31,3 +31,16 @@ export const image = Yup.string()
     },
   )
   .optional();
+
+export const phoneRegex = /^\d{3}\d{9}$/;
+export const zipCodeRegex = /^[0-9]{4,10}$/;
+export const stateCityRegex = /^[a-zA-Z\s\-']{2,50}$/;
+
+export const address = {
+  street: Yup.string().min(2).max(100),
+  city: Yup.string().matches(stateCityRegex, 'City must be valid'),
+  state: Yup.string().matches(stateCityRegex, 'State must be valid'),
+  zip_code: Yup.string().matches(zipCodeRegex, 'ZIP code must be valid'),
+};
+
+export const genderRegex = /^M|F$/;

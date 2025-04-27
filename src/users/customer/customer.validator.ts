@@ -2,11 +2,12 @@ import * as Yup from 'yup';
 import dayjs from 'dayjs';
 
 import { HealthCondition } from '@/users/customer/customer.model';
-import { image } from '@/users/user.validator';
-
-const phoneRegex = /^[+]?[0-9]{7,15}$/;
-const zipCodeRegex = /^[0-9]{4,10}$/;
-const stateCityRegex = /^[a-zA-Z\s\-']{2,50}$/;
+import {
+  address,
+  genderRegex,
+  image,
+  phoneRegex,
+} from '@/users/user.validator';
 
 const MINIMUM_AGE = 13;
 
@@ -28,13 +29,6 @@ const dateOfBirth = Yup.date()
   })
   .optional();
 
-const deliveryAddress = {
-  street: Yup.string().min(2).max(100),
-  city: Yup.string().matches(stateCityRegex, 'City must be valid'),
-  state: Yup.string().matches(stateCityRegex, 'State must be valid'),
-  zip_code: Yup.string().matches(zipCodeRegex, 'ZIP code must be valid'),
-};
-
 const emergencyContact = Yup.object({
   name: Yup.string().min(2).max(100).optional(),
   phone: Yup.string()
@@ -44,18 +38,37 @@ const emergencyContact = Yup.object({
 
 const healthDetails = Yup.array()
   .of(Yup.mixed<HealthCondition>().oneOf(Object.values(HealthCondition)))
+  .test('gender-specific-condition', function (values) {
+    if (values == null) return true;
+
+    const { gender } = this.parent;
+
+    for (let i = 0; i < values.length; i++) {
+      if (gender === 'M' && values[i] === HealthCondition.PREGNANCY) {
+        return this.createError({
+          path: `${this.path}[${i}]`,
+          message: 'This health condition is not valid for your gender',
+        });
+      }
+    }
+
+    return true;
+  })
   .optional();
 
 export const CustomerProfileDto = Yup.object({
   phone_number: phoneNumber.required('Phone number is required'),
+  gender: Yup.string()
+    .matches(genderRegex, 'Gender must be valid either M or F')
+    .required('Gender is required'),
   alternate_phone_number: alternatePhoneNumber,
   date_of_birth: dateOfBirth,
 
   delivery_address: Yup.object({
-    street: deliveryAddress.street.required('Street is required'),
-    city: deliveryAddress.city.required('City is required'),
-    state: deliveryAddress.state.required('State is required'),
-    zip_code: deliveryAddress.zip_code.required('ZIP code is required'),
+    street: address.street.required('Street is required'),
+    city: address.city.required('City is required'),
+    state: address.state.required('State is required'),
+    zip_code: address.zip_code.required('ZIP code is required'),
   }).required('Delivery address is required'),
 
   emergency_contact: emergencyContact,
@@ -63,21 +76,4 @@ export const CustomerProfileDto = Yup.object({
   health_details: healthDetails,
 
   image,
-});
-
-export const CustomerProfileUpdateDto = Yup.object({
-  phone_number: phoneNumber.optional(),
-  alternate_phone_number: alternatePhoneNumber,
-  date_of_birth: dateOfBirth,
-
-  delivery_address: Yup.object({
-    street: deliveryAddress.street.optional(),
-    city: deliveryAddress.city.optional(),
-    state: deliveryAddress.state.optional(),
-    zip_code: deliveryAddress.zip_code.optional(),
-  }).optional(),
-
-  emergency_contact: emergencyContact,
-
-  health_details: healthDetails,
 });

@@ -23,13 +23,16 @@ export const VerifyEmailDto = Yup.object().shape({
   email,
   user_type,
   otp_code: Yup.string()
-    .min(4, 'Code must be at least 4 characters long')
-    .required(),
+    .matches(/^\d{6}$/, 'Must be a 6-digit number') // otp generator must do the same length
+    .required('OTP code is required'),
 });
 
 export const SignupDto = Yup.object().shape({
   full_name: Yup.string()
-    .min(3, 'Full name must be at least 3 characters long')
+    .matches(
+      /^[a-zA-Z]{3,} [a-zA-Z]{3,}$/,
+      'Enter your full name with exactly two words',
+    )
     .max(50, 'Full name cannot exceed 50 characters')
     .required('Full name is required'),
   email,

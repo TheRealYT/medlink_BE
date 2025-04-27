@@ -1,23 +1,12 @@
 import * as Yup from 'yup';
 
 import { DAYS } from '@/users/pharmacy/pharmacy.model';
-import { image } from '@/users/user.validator';
-
-const phoneRegex = /^[+]?[0-9]{7,15}$/;
-const zipCodeRegex = /^[0-9]{4,10}$/;
-const stateCityRegex = /^[a-zA-Z\s\-']{2,50}$/;
+import { address, image, phoneRegex } from '@/users/user.validator';
 
 const phoneNumber = Yup.string().matches(
   phoneRegex,
   'Phone number must be valid',
 );
-
-const address = {
-  street: Yup.string().min(2).max(100),
-  city: Yup.string().matches(stateCityRegex, 'City must be valid'),
-  state: Yup.string().matches(stateCityRegex, 'State must be valid'),
-  zip_code: Yup.string().matches(zipCodeRegex, 'ZIP code must be valid'),
-};
 
 const openHours = Yup.array()
   .of(
@@ -46,7 +35,7 @@ export const PharmacyProfileDto = Yup.object({
     city: address.city.required('City is required'),
     state: address.state.required('State is required'),
     zip_code: address.zip_code.required('ZIP code is required'),
-  }).required('Delivery address is required'),
+  }).required('Pharmacy address is required'),
   license_number: Yup.string()
     .matches(
       /^[A-Z0-9-]+$/,
@@ -57,7 +46,7 @@ export const PharmacyProfileDto = Yup.object({
     .required('License number is required'),
   open_hours: openHours,
   pharmacy_name: Yup.string()
-    .min(2, 'Pharmacy name must be at least 2 characters')
+    .min(3, 'Pharmacy name must be at least 3 characters')
     .max(100, 'Pharmacy name must be at most 100 characters')
     .required('Pharmacy name is required'),
   description: Yup.string()
@@ -65,7 +54,7 @@ export const PharmacyProfileDto = Yup.object({
     .optional(),
   website: Yup.string().url('Website must be a valid URL').optional(),
   person_name: Yup.string()
-    .min(2, 'Person name must be at least 2 characters')
+    .min(3, 'Person name must be at least 3 characters')
     .max(100, 'Person name must be at most 100 characters')
     .optional(),
   image,
