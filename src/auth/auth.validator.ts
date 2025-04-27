@@ -19,12 +19,13 @@ const strongPassword = Yup.string()
   )
   .required('Password is required');
 
+// otp generator must do the same length
+const otpCode = Yup.string().matches(/^\d{6}$/, 'Must be a 6-digit number');
+
 export const VerifyEmailDto = Yup.object().shape({
   email,
   user_type,
-  otp_code: Yup.string()
-    .matches(/^\d{6}$/, 'Must be a 6-digit number') // otp generator must do the same length
-    .required('OTP code is required'),
+  otp_code: otpCode.required('OTP code is required'),
 });
 
 export const SignupDto = Yup.object().shape({
@@ -56,5 +57,10 @@ export const ResetPassDto = Yup.object().shape({
   email,
   user_type,
   password: strongPassword,
-  token: Yup.string().required(),
+  token: Yup.string(),
+  otp_code: otpCode.when('token', {
+    is: (token?: string) => !token,
+    then: (schema) => schema.required('OTP code is required'),
+    otherwise: (schema) => schema,
+  }),
 });
