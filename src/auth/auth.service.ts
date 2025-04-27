@@ -17,6 +17,10 @@ class AuthService {
   }
 
   getPassResetTokenKey(email: string, userType: UserType) {
+    return `${email}-${userType}-pass-token`;
+  }
+
+  getPassResetOtpKey(email: string, userType: UserType) {
     return `${email}-${userType}-pass-otp`;
   }
 }
