@@ -132,7 +132,7 @@ export const PharmacyFilterDto = Yup.object({
   location: Yup.object({
     lat: location.lat.required(),
     lng: location.lng.required(),
-    distance: Yup.number().positive().default(5).optional(), // distance from the location in meters
+    distance: Yup.number().positive().default(5_000).optional(), // distance from the location in meters
   })
     .optional()
     .default(undefined),
