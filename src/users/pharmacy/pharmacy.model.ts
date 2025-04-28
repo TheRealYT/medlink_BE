@@ -37,12 +37,13 @@ export const PharmacySchema = new Schema(
       zipCode: { type: String, required: true },
     },
     location: {
-      lat: {
-        type: Number,
+      type: {
+        type: String,
+        enum: ['Point'],
         required: true,
       },
-      lng: {
-        type: Number,
+      coordinates: {
+        type: [Number], // [longitude, latitude]
         required: true,
       },
     },
@@ -92,5 +93,7 @@ export const PharmacySchema = new Schema(
     timestamps: true,
   },
 );
+
+PharmacySchema.index({ location: '2dsphere' });
 
 export const PharmacyModel = model('Pharmacy', PharmacySchema);
