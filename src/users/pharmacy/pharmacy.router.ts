@@ -2,7 +2,10 @@ import { Router } from 'express';
 
 import { body, pass } from '@/utils/parser';
 import pharmacyController from '@/users/pharmacy/pharmacy.controller';
-import { PharmacyProfileDto } from '@/users/pharmacy/pharmacy.validator';
+import {
+  PharmacyFilterDto,
+  PharmacyProfileDto,
+} from '@/users/pharmacy/pharmacy.validator';
 import userGuard from '@/users/user.guard';
 import { UserType } from '@/users/user.model';
 import authGuard from '@/auth/auth.guard';
@@ -14,6 +17,8 @@ const router = Router();
 router.use(authGuard());
 
 // put any authenticated user accessible routes here
+
+router.post('/find', body(PharmacyFilterDto), pass(pharmacyController.find));
 
 router.use(userGuard(UserType.PHARMACIST));
 

@@ -9,22 +9,26 @@ const phoneNumber = Yup.string().matches(
   'Phone number must be valid',
 );
 
+const weekday = Yup.string().oneOf(DAYS);
+
+const HH_mm_regex = /^([0-1]\d|2[0-3]):([0-5]\d)$/;
+
+const openHour = Yup.string().matches(
+  HH_mm_regex,
+  'Open time must be in HH:mm format',
+);
+
+const closeHour = Yup.string().matches(
+  HH_mm_regex,
+  'Close time must be in HH:mm format',
+);
+
 const openHours = Yup.array()
   .of(
     Yup.object({
-      day: Yup.string().oneOf(DAYS).required('Day is required'),
-      open: Yup.string()
-        .matches(
-          /^([0-1]\d|2[0-3]):([0-5]\d)$/,
-          'Open time must be in HH:mm format',
-        )
-        .required('Open time is required'),
-      close: Yup.string()
-        .matches(
-          /^([0-1]\d|2[0-3]):([0-5]\d)$/,
-          'Close time must be in HH:mm format',
-        )
-        .required('Close time is required'),
+      day: weekday.required('Day is required'),
+      open: openHour.required('Open time is required'),
+      close: closeHour.required('Close time is required'),
     }),
   )
   .test('no-intersecting-times', function (open_hours) {
@@ -120,4 +124,43 @@ export const PharmacyProfileDto = Yup.object({
     .max(100, 'Person name must be at most 100 characters')
     .optional(),
   image,
+});
+
+export const PharmacyFilterDto = Yup.object({
+  name: Yup.string().min(3).optional(), // pharmacy name
+  address: Yup.string().min(3).optional(), // street, city or state
+  location: Yup.object({
+    lat: location.lat.required(),
+    lng: location.lng.required(),
+    distance: Yup.number().positive().default(5_000).optional(), // distance from the location in meters
+  })
+    .optional()
+    .default(undefined),
+  open_hour: Yup.object({
+    day: weekday.required('Day is required'),
+    open: openHour.optional(),
+    close: closeHour.optional(),
+  })
+    .test('valid-time', function (openHour) {
+      if (openHour && openHour.open && openHour.close) {
+        const { open, close } = openHour;
+
+        const openTime = strTimeToMinutes(open);
+        const closeTime = strTimeToMinutes(close);
+
+        // if close time is earlier or equal to open time, it's invalid
+        if (closeTime <= openTime) {
+          return this.createError({
+            message: `Invalid time interval: "${open} - ${close}"`,
+          });
+        }
+      }
+
+      return true;
+    })
+    .optional()
+    .default(undefined),
+  delivery: Yup.boolean().optional(),
+  rating: Yup.number().min(1).max(5).optional(),
+  next: Yup.number().integer().min(0).default(0).optional(),
 });

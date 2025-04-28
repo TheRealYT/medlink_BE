@@ -4,6 +4,16 @@ import { UserModel } from '@/users/user.model';
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+export type PharmacyFilter = {
+  name?: string;
+  address?: string;
+  location?: { lat: number; lng: number; distance: number };
+  openHour?: { close?: string; day: string; open?: string };
+  delivery?: boolean;
+  rating?: number;
+  next?: number;
+};
+
 // pharmacy profile
 export const PharmacySchema = new Schema(
   {
@@ -37,12 +47,13 @@ export const PharmacySchema = new Schema(
       zipCode: { type: String, required: true },
     },
     location: {
-      lat: {
-        type: Number,
+      type: {
+        type: String,
+        enum: ['Point'],
         required: true,
       },
-      lng: {
-        type: Number,
+      coordinates: {
+        type: [Number], // [longitude, latitude]
         required: true,
       },
     },
@@ -87,10 +98,16 @@ export const PharmacySchema = new Schema(
     rejectionMessage: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: null, // null -> unrated, or 1-5
+    },
   },
   {
     timestamps: true,
   },
 );
+
+PharmacySchema.index({ location: '2dsphere' });
 
 export const PharmacyModel = model('Pharmacy', PharmacySchema);
