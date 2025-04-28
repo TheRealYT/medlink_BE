@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 import { UserSession } from '@/users/user.model';
 import userService from '@/users/user.service';
-import { NotFoundError } from '@/utils/HttpError';
+import { BadRequestError, NotFoundError } from '@/utils/HttpError';
 import { CustomerProfileDto } from '@/users/customer/customer.validator';
 import customerService from '@/users/customer/customer.service';
 
@@ -39,6 +39,7 @@ class CustomerController {
               emergency_contact: profile?.emergencyContact,
               health_details: profile?.healthDetails as string[],
               phone_number: profile?.phoneNumber,
+              gender: profile?.gender,
               profile_picture: profile?.profilePicture,
             }
           : null,
@@ -50,8 +51,16 @@ class CustomerController {
     this: void,
     session: UserSession,
     data: Yup.InferType<typeof CustomerProfileDto>,
-    profilePicture?: string,
   ) {
+    let profilePicture: string | undefined = undefined;
+
+    if (data.image) {
+      const fileName = await userService.uploadProfile(session.id, data.image);
+      if (!fileName) throw new BadRequestError('Failed to upload image.');
+
+      profilePicture = fileName;
+    }
+
     await customerService.setProfile(session.id, {
       alternatePhoneNumber: data?.alternate_phone_number,
       dateOfBirth: data?.date_of_birth,
@@ -64,6 +73,7 @@ class CustomerController {
       emergencyContact: data?.emergency_contact,
       healthDetails: data?.health_details as string[],
       phoneNumber: data.phone_number,
+      gender: data.gender,
       profilePicture,
     });
   }

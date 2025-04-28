@@ -35,9 +35,6 @@ const OTP_EXPIRY: TIME = [5, 'minutes'];
 const ACCESS_TOKEN_EXPIRY: TIME = [24, 'hours'];
 const REFRESH_TOKEN_EXPIRY: TIME = [30, 'days'];
 
-const PASS_RESET_TOKEN_EXPIRY: TIME = [24, 'hours'];
-const PASS_RESET_RESENT: TIME = [5, 'minutes'];
-
 class AuthController {
   async signup(this: void, data: Yup.InferType<typeof SignupDto>) {
     const key = authService.getSignupOtpKey(data.email, data.user_type);
@@ -242,18 +239,22 @@ class AuthController {
   }
 
   async forgetPassword(this: void, data: Yup.InferType<typeof ForgetPassDto>) {
-    const key = authService.getPassResetTokenKey(data.email, data.user_type);
+    const tokenKey = authService.getPassResetTokenKey(
+      data.email,
+      data.user_type,
+    );
+    const otpKey = authService.getPassResetOtpKey(data.email, data.user_type);
 
-    // check if token exists
-    if (await cacheService.has(key)) {
-      const timeLeft = await cacheService.getTimeLeft(key);
+    // check if both token and otp exist
+    if (await cacheService.has(tokenKey, otpKey)) {
+      const timeLeft = await cacheService.getTimeLeft(tokenKey);
       if (timeLeft) {
         const now = dayjs();
         const expiryTime = now.add(timeLeft, 'seconds');
 
         // check if the threshold time has passed for resend
-        const sentTime = expiryTime.subtract(...PASS_RESET_TOKEN_EXPIRY);
-        const resend = dayjs().isAfter(sentTime.add(...PASS_RESET_RESENT));
+        const sentTime = expiryTime.subtract(...OTP_EXPIRY);
+        const resend = dayjs().isAfter(sentTime.add(...OTP_RESEND));
 
         if (!resend)
           throw new BadRequestError(
@@ -273,15 +274,17 @@ class AuthController {
     }
 
     const token = await cryptoService.generateSessionId();
+    const otpCode = await cryptoService.generateOTP(6);
 
     const now = dayjs();
-    const expiry = now.add(...PASS_RESET_TOKEN_EXPIRY);
-    const resend = now.add(...PASS_RESET_RESENT);
+    const expiry = now.add(...OTP_EXPIRY);
+    const resend = now.add(...OTP_RESEND);
 
     const link = `${getEnv('FRONTEND_URL')}/reset-password/${token}`;
     const message = await emailTemplates.useTemplate(
       'password_reset',
       link,
+      otpCode,
       expiry.fromNow(true),
     );
     emailService
@@ -289,7 +292,8 @@ class AuthController {
       .catch((err) => logger.error('Failed to send password reset link:', err));
 
     const ttl = expiry.diff(now, 'seconds');
-    await cacheService.set(key, token, ttl);
+    await cacheService.set(tokenKey, token, ttl);
+    await cacheService.set(otpKey, otpCode, ttl);
 
     return {
       message: 'A password reset link has been sent to your email address.',
@@ -301,11 +305,27 @@ class AuthController {
   }
 
   async resetPassword(this: void, data: Yup.InferType<typeof ResetPassDto>) {
-    const key = authService.getPassResetTokenKey(data.email, data.user_type);
-    const token = await cacheService.get(key);
+    const tokenKey = authService.getPassResetTokenKey(
+      data.email,
+      data.user_type,
+    );
+    const otpKey = authService.getPassResetOtpKey(data.email, data.user_type);
 
-    if (token == null || token !== data.token)
-      throw new BadRequestError('Invalid or expired password reset link.');
+    if (data.token != null) {
+      const token = await cacheService.get(tokenKey);
+
+      if (token == null || token !== data.token)
+        throw new BadRequestError('Invalid or expired password reset link.');
+    } else if (data.otp_code != null) {
+      const otpCode = await cacheService.get(otpKey);
+
+      if (otpCode == null || otpCode !== data.otp_code)
+        throw new BadRequestError('Invalid or expired OTP code.');
+    } else {
+      throw new BadRequestError(
+        'Please use either OTP code or a password reset link.',
+      );
+    }
 
     const user = await userService.setPassword(
       data.email,
@@ -316,7 +336,7 @@ class AuthController {
     if (user == null)
       throw new BadRequestError('Invalid or expired password reset link.');
 
-    await cacheService.del(key);
+    await cacheService.del(tokenKey, otpKey);
   }
 }
 

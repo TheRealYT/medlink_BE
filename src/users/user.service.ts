@@ -1,7 +1,13 @@
-import { Types, InferSchemaType } from 'mongoose';
+import fs from 'node:fs/promises';
+
+import { InferSchemaType } from 'mongoose';
 
 import { UserModel, UserSchema, UserType } from '@/users/user.model';
 import cryptoService from '@/crypto/crypto.service';
+import path from 'node:path';
+import { PROFILE_DIR } from '@/config/constants';
+import { MIME_TYPES } from '@/users/user.validator';
+import { logger } from '@/utils';
 
 class UserService {
   async userExists(email: string, userType: UserType) {
@@ -31,6 +37,32 @@ class UserService {
         password: await cryptoService.hash(password),
       },
     );
+  }
+
+  // fileName without extension
+  async uploadProfile(fileName: string, dataUrl: string) {
+    // `data:image/png;base64,...`
+
+    const start = dataUrl.indexOf(':') + 1;
+    const end = dataUrl.indexOf(';');
+
+    const mime = dataUrl.slice(start, end);
+    const ext = MIME_TYPES[mime];
+
+    if (ext != null) {
+      const buffer = Buffer.from(dataUrl.slice(end + 8), 'base64');
+      try {
+        const filenameExt = `${fileName}.${ext}`;
+        const filePath = path.join(PROFILE_DIR, filenameExt);
+        await fs.writeFile(filePath, buffer);
+
+        return filenameExt;
+      } catch (err) {
+        logger.error('Failed to upload file:', err);
+      }
+    }
+
+    return false;
   }
 }
 

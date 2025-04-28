@@ -1,22 +1,13 @@
 import * as Yup from 'yup';
 
 import { DAYS } from '@/users/pharmacy/pharmacy.model';
-
-const phoneRegex = /^[+]?[0-9]{7,15}$/;
-const zipCodeRegex = /^[0-9]{4,10}$/;
-const stateCityRegex = /^[a-zA-Z\s\-']{2,50}$/;
+import { address, image, location, phoneRegex } from '@/users/user.validator';
+import { strTimeToMinutes } from '@/users/pharmacy/utils';
 
 const phoneNumber = Yup.string().matches(
   phoneRegex,
   'Phone number must be valid',
 );
-
-const address = {
-  street: Yup.string().min(2).max(100),
-  city: Yup.string().matches(stateCityRegex, 'City must be valid'),
-  state: Yup.string().matches(stateCityRegex, 'State must be valid'),
-  zip_code: Yup.string().matches(zipCodeRegex, 'ZIP code must be valid'),
-};
 
 const openHours = Yup.array()
   .of(
@@ -36,6 +27,62 @@ const openHours = Yup.array()
         .required('Close time is required'),
     }),
   )
+  .test('no-intersecting-times', function (open_hours) {
+    // map each day to its corresponding time intervals (open and close)
+    const days =
+      open_hours?.reduce(
+        (
+          acc: Record<string, { open: string; close: string }[]>,
+          { day, open, close },
+        ) => {
+          if (!acc[day]) {
+            acc[day] = [];
+          }
+          acc[day].push({ open, close });
+          return acc;
+        },
+        {},
+      ) ?? {};
+
+    // check each day's time intervals for overlaps
+    for (const day in days) {
+      const times = days[day];
+
+      // loop through all pairs of intervals for the same day
+      for (let i = 0; i < times.length; i++) {
+        const { open, close } = times[i];
+        const openTime = strTimeToMinutes(open);
+        const closeTime = strTimeToMinutes(close);
+
+        // if close time is earlier or equal to open time, it's invalid
+        if (closeTime <= openTime) {
+          return this.createError({
+            path: `${this.path}[${i}]`,
+            message: `Invalid time interval: "${open} - ${close}" on ${day}`,
+          });
+        }
+
+        // compare this interval with all subsequent intervals on the same day
+        for (let j = i + 1; j < times.length; j++) {
+          const { open: nextOpen, close: nextClose } = times[j];
+          const nextOpenTime = strTimeToMinutes(nextOpen);
+          const nextCloseTime = strTimeToMinutes(nextClose);
+
+          // if the time intervals overlap, return an error with details
+          if (
+            (openTime < nextCloseTime && closeTime > nextOpenTime) || // interval i overlaps with j
+            (nextOpenTime < closeTime && nextCloseTime > openTime) // interval j overlaps with i
+          ) {
+            return this.createError({
+              message: `Overlap detected: "${open} - ${close}" and "${nextOpen} - ${nextClose}" on ${day}`,
+            });
+          }
+        }
+      }
+    }
+
+    return true;
+  })
   .required();
 
 export const PharmacyProfileDto = Yup.object({
@@ -45,7 +92,11 @@ export const PharmacyProfileDto = Yup.object({
     city: address.city.required('City is required'),
     state: address.state.required('State is required'),
     zip_code: address.zip_code.required('ZIP code is required'),
-  }).required('Delivery address is required'),
+  }).required('Pharmacy address is required'),
+  location: Yup.object({
+    lat: location.lat.required('Location is required'),
+    lng: location.lng.required('Location is required'),
+  }).required('Location is required'),
   license_number: Yup.string()
     .matches(
       /^[A-Z0-9-]+$/,
@@ -55,8 +106,9 @@ export const PharmacyProfileDto = Yup.object({
     .max(20, 'License number must be at most 20 characters')
     .required('License number is required'),
   open_hours: openHours,
+  delivery: Yup.boolean().default(false).optional(),
   pharmacy_name: Yup.string()
-    .min(2, 'Pharmacy name must be at least 2 characters')
+    .min(3, 'Pharmacy name must be at least 3 characters')
     .max(100, 'Pharmacy name must be at most 100 characters')
     .required('Pharmacy name is required'),
   description: Yup.string()
@@ -64,7 +116,8 @@ export const PharmacyProfileDto = Yup.object({
     .optional(),
   website: Yup.string().url('Website must be a valid URL').optional(),
   person_name: Yup.string()
-    .min(2, 'Person name must be at least 2 characters')
+    .min(3, 'Person name must be at least 3 characters')
     .max(100, 'Person name must be at most 100 characters')
     .optional(),
+  image,
 });

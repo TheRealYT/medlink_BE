@@ -36,6 +36,16 @@ export const PharmacySchema = new Schema(
       state: { type: String, required: true },
       zipCode: { type: String, required: true },
     },
+    location: {
+      lat: {
+        type: Number,
+        required: true,
+      },
+      lng: {
+        type: Number,
+        required: true,
+      },
+    },
     openHours: {
       type: [
         {
@@ -45,11 +55,11 @@ export const PharmacySchema = new Schema(
             required: true,
           },
           open: {
-            type: String,
+            type: Number, // in minutes
             required: true,
           },
           close: {
-            type: String,
+            type: Number, // in minutes
             required: true,
           },
         },
@@ -65,6 +75,10 @@ export const PharmacySchema = new Schema(
     },
     pharmacyLogo: {
       type: String,
+    },
+    delivery: {
+      type: Boolean,
+      default: false,
     },
     verified: {
       type: Boolean,

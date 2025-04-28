@@ -2,9 +2,10 @@ import * as Yup from 'yup';
 
 import { UserSession } from '@/users/user.model';
 import userService from '@/users/user.service';
-import { NotFoundError } from '@/utils/HttpError';
+import { BadRequestError, NotFoundError } from '@/utils/HttpError';
 import { PharmacyProfileDto } from '@/users/pharmacy/pharmacy.validator';
 import pharmacyService from '@/users/pharmacy/pharmacy.service';
+import { minutesToTimeStr, strTimeToMinutes } from '@/users/pharmacy/utils';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -30,7 +31,11 @@ class PharmacyController {
               updated_at: profile.updatedAt,
               description: profile?.description,
               license_number: profile?.licenseNumber,
-              open_hours: profile.openHours,
+              open_hours: profile.openHours.map(({ day, open, close }) => ({
+                day,
+                open: minutesToTimeStr(open),
+                close: minutesToTimeStr(close),
+              })),
               person_name: profile?.personName,
               pharmacy_name: profile.pharmacyName,
               website: profile?.website,
@@ -40,6 +45,11 @@ class PharmacyController {
                 state: profile?.address?.state,
                 zip_code: profile?.address?.zipCode,
               },
+              location: {
+                lat: profile?.location?.lat,
+                lng: profile?.location?.lng,
+              },
+              delivery: profile?.delivery,
               phone_number: profile.phoneNumber,
               pharmacy_logo: profile.pharmacyLogo,
               verified: profile?.verified === true,
@@ -54,14 +64,26 @@ class PharmacyController {
     this: void,
     session: UserSession,
     data: Yup.InferType<typeof PharmacyProfileDto>,
-    pharmacyLogo?: string,
   ) {
+    let pharmacyLogo: string | undefined = undefined;
+
+    if (data.image) {
+      const fileName = await userService.uploadProfile(session.id, data.image);
+      if (!fileName) throw new BadRequestError('Failed to upload image.');
+
+      pharmacyLogo = fileName;
+    }
+
     await pharmacyService.setProfile(session.id, {
       description: data?.description,
       licenseNumber: data.license_number,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      openHours: data.open_hours,
+      openHours: data.open_hours.map(({ day, open, close }) => ({
+        day,
+        open: strTimeToMinutes(open),
+        close: strTimeToMinutes(close),
+      })),
       personName: data?.person_name,
       pharmacyName: data.pharmacy_name,
       website: data?.website,
@@ -71,6 +93,11 @@ class PharmacyController {
         state: data.address.state,
         zipCode: data.address.zip_code,
       },
+      location: {
+        lat: data.location.lat,
+        lng: data.location.lng,
+      },
+      delivery: data.delivery,
       phoneNumber: data.phone_number,
       pharmacyLogo,
     });
