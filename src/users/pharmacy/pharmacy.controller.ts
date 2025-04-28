@@ -131,6 +131,7 @@ class PharmacyController {
         const openHour = p.openHours[pharmacyService.getOpenHour(p.openHours)];
 
         return {
+          id: p._id.toString(),
           pharmacy_name: p.pharmacyName,
           description: p.description,
           pharmacy_logo: p.pharmacyLogo,
