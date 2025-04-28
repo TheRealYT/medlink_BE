@@ -98,6 +98,10 @@ export const PharmacySchema = new Schema(
     rejectionMessage: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: null, // null -> unrated, or 1-5
+    },
   },
   {
     timestamps: true,
