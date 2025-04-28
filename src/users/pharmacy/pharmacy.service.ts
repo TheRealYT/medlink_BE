@@ -1,6 +1,11 @@
-import { Types, InferSchemaType } from 'mongoose';
+import { FilterQuery, InferSchemaType, Types } from 'mongoose';
 
-import { PharmacyModel, PharmacySchema } from '@/users/pharmacy/pharmacy.model';
+import {
+  PharmacyFilter,
+  PharmacyModel,
+  PharmacySchema,
+} from '@/users/pharmacy/pharmacy.model';
+import { strTimeToMinutes } from '@/users/pharmacy/utils';
 
 class PharmacyService {
   async getProfile(
@@ -26,6 +31,96 @@ class PharmacyService {
         ignoreUndefined: true,
       },
     );
+  }
+
+  async find(filter: PharmacyFilter) {
+    const filterQuery: FilterQuery<typeof PharmacyModel> = {};
+
+    // name filter
+    if (filter.name != null) {
+      filterQuery.pharmacyName = { $regex: filter.name, $options: 'i' };
+    }
+
+    // address filter
+    if (filter.address != null) {
+      filterQuery.$or = [
+        {
+          'address.street': {
+            $regex: filter.address,
+            $options: 'i',
+          },
+        },
+        { 'address.city': { $regex: filter.address, $options: 'i' } },
+        {
+          'address.state': {
+            $regex: filter.address,
+            $options: 'i',
+          },
+        },
+      ];
+    }
+
+    // location filter
+    if (filter.location != null) {
+      filterQuery.location = {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [filter.location.lng, filter.location.lat],
+          },
+          $maxDistance: filter.location.distance, // meters
+        },
+      };
+    }
+
+    // openHours filter
+    if (filter.openHour != null) {
+      const openHoursQuery: { $elemMatch: { day; open?; close? } } = {
+        $elemMatch: { day: filter.openHour.day },
+      };
+
+      if (filter.openHour.close != null) {
+        openHoursQuery.$elemMatch.open = {
+          $lt: strTimeToMinutes(filter.openHour.close),
+        };
+      }
+
+      if (filter.openHour.open != null) {
+        openHoursQuery.$elemMatch.close = {
+          $gt: strTimeToMinutes(filter.openHour.open),
+        };
+      }
+
+      filterQuery.openHours = openHoursQuery;
+    }
+
+    // delivery filter
+    if (filter.delivery != null) {
+      filterQuery.delivery = filter.delivery;
+    }
+
+    // rating filter
+    if (filter.rating != null) {
+      filterQuery.rating = { $gte: filter.rating };
+    }
+
+    return PharmacyModel.find(filterQuery).skip(filter.next).limit(5);
+  }
+
+  getOpenHour(
+    openHours: { open: number; close: number }[],
+    time: Date = new Date(),
+  ) {
+    const nowMinutes = time.getHours() * 60 + time.getMinutes();
+
+    for (let i = 0, n = openHours.length; i < n; i++) {
+      const { open, close } = openHours[i];
+      if (nowMinutes >= open && nowMinutes <= close) {
+        return i; // found the matching interval
+      }
+    }
+
+    return -1;
   }
 }
 
