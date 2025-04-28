@@ -46,8 +46,8 @@ class PharmacyController {
                 zip_code: profile?.address?.zipCode,
               },
               location: {
-                lat: profile?.location?.lat,
-                lng: profile?.location?.lng,
+                lat: profile?.location?.coordinates[1],
+                lng: profile?.location?.coordinates[0],
               },
               delivery: profile?.delivery,
               phone_number: profile.phoneNumber,
@@ -94,8 +94,8 @@ class PharmacyController {
         zipCode: data.address.zip_code,
       },
       location: {
-        lat: data.location.lat,
-        lng: data.location.lng,
+        type: 'Point',
+        coordinates: [data.location.lng, data.location.lat],
       },
       delivery: data.delivery,
       phoneNumber: data.phone_number,
