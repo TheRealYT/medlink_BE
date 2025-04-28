@@ -4,6 +4,16 @@ import { UserModel } from '@/users/user.model';
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+export type PharmacyFilter = {
+  name?: string;
+  address?: string;
+  location?: { lat: number; lng: number; distance: number };
+  openHour?: { close?: string; day: string; open?: string };
+  delivery?: boolean;
+  rating?: number;
+  next: number;
+};
+
 // pharmacy profile
 export const PharmacySchema = new Schema(
   {
