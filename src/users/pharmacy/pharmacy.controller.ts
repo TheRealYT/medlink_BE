@@ -3,9 +3,16 @@ import * as Yup from 'yup';
 import { UserSession } from '@/users/user.model';
 import userService from '@/users/user.service';
 import { BadRequestError, NotFoundError } from '@/utils/HttpError';
-import { PharmacyProfileDto } from '@/users/pharmacy/pharmacy.validator';
+import {
+  PharmacyFilterDto,
+  PharmacyProfileDto,
+} from '@/users/pharmacy/pharmacy.validator';
 import pharmacyService from '@/users/pharmacy/pharmacy.service';
-import { minutesToTimeStr, strTimeToMinutes } from '@/users/pharmacy/utils';
+import {
+  haversineDistance,
+  minutesToTimeStr,
+  strTimeToMinutes,
+} from '@/users/pharmacy/utils';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -101,6 +108,48 @@ class PharmacyController {
       phoneNumber: data.phone_number,
       pharmacyLogo,
     });
+  }
+
+  async find(
+    this: void,
+    session: UserSession,
+    filter: Yup.InferType<typeof PharmacyFilterDto>,
+  ) {
+    const pharmacies =
+      (await pharmacyService.find({
+        name: filter.name,
+        address: filter.address,
+        location: filter.location,
+        openHour: filter.open_hour,
+        delivery: filter.delivery,
+        rating: filter.rating,
+        next: filter.next,
+      })) ?? [];
+
+    return {
+      data: pharmacies.map((p) => {
+        const openHour = p.openHours[pharmacyService.getOpenHour(p.openHours)];
+
+        return {
+          pharmacy_name: p.pharmacyName,
+          description: p.description,
+          pharmacy_logo: p.pharmacyLogo,
+          isOpen: openHour != null,
+          closes: openHour != null ? minutesToTimeStr(openHour.close) : null,
+          delivery: p.delivery,
+          rating: p.rating,
+          distance:
+            filter.location && p.location
+              ? haversineDistance(
+                  filter.location?.lat,
+                  filter.location?.lng,
+                  p.location.coordinates[1],
+                  p.location.coordinates[0],
+                )
+              : null,
+        };
+      }),
+    };
   }
 }
 
