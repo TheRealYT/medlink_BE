@@ -11,7 +11,7 @@ export type PharmacyFilter = {
   openHour?: { close?: string; day: string; open?: string };
   delivery?: boolean;
   rating?: number;
-  next?: number;
+  next: number;
 };
 
 // pharmacy profile

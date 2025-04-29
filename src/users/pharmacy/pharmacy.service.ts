@@ -75,8 +75,13 @@ class PharmacyService {
 
     // openHours filter
     if (filter.openHour != null) {
-      const openHoursQuery: { $elemMatch: { day: string, open?: number, close?: number } } = {
-      };
+      const openHoursQuery: {
+        $elemMatch: {
+          day: string;
+          open?: object | undefined;
+          close?: object | undefined;
+        };
+      } = { $elemMatch: { day: filter.openHour.day } };
 
       if (filter.openHour.close != null) {
         openHoursQuery.$elemMatch.open = {
