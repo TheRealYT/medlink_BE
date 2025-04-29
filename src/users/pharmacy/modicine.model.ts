@@ -10,7 +10,6 @@ export const MedicineSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: PharmacyModel,
       required: true,
-      unique: true,
     },
     name: {
       type: String,
