@@ -4,6 +4,11 @@ import { UserModel } from '@/users/user.model';
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+export type PharmacyContext = {
+  id: string;
+  verified: boolean;
+};
+
 export type PharmacyFilter = {
   name?: string;
   address?: string;
