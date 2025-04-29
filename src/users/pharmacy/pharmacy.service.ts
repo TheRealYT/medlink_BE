@@ -8,9 +8,7 @@ import {
 import { strTimeToMinutes } from '@/users/pharmacy/utils';
 
 class PharmacyService {
-  async getProfile(
-    userId: string | Types.ObjectId,
-  ): Promise<InferSchemaType<typeof PharmacySchema> | null> {
+  async getProfile(userId: string | Types.ObjectId) {
     return PharmacyModel.findOne({ user: userId });
   }
 
