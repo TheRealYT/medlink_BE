@@ -6,6 +6,7 @@ import {
   PharmacySchema,
 } from '@/users/pharmacy/pharmacy.model';
 import { strTimeToMinutes } from '@/users/pharmacy/utils';
+import { MedicineModel, MedicineSchema } from '@/users/pharmacy/modicine.model';
 
 class PharmacyService {
   async getProfile(userId: string | Types.ObjectId) {
@@ -123,6 +124,21 @@ class PharmacyService {
     }
 
     return -1;
+  }
+
+  async addMedicine(
+    pharmacyId: string,
+    medicine: Omit<
+      InferSchemaType<typeof MedicineSchema>,
+      'pharmacy' | 'createdAt' | 'updatedAt'
+    >,
+  ) {
+    const newMedicine = new MedicineModel(medicine);
+    newMedicine.pharmacy = new Types.ObjectId(pharmacyId);
+
+    await newMedicine.save();
+
+    return true;
   }
 }
 
