@@ -24,6 +24,8 @@ router.use(userGuard(UserType.PHARMACIST));
 
 // put pharmacist only routes here
 
+router.get('/profile/status', pass(pharmacyController.getProfileStatus));
+
 router.get('/profile', pass(pharmacyController.getProfile));
 
 router.post(

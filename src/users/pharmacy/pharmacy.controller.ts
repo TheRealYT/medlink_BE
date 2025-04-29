@@ -59,10 +59,21 @@ class PharmacyController {
               delivery: profile?.delivery,
               phone_number: profile.phoneNumber,
               pharmacy_logo: profile.pharmacyLogo,
-              verified: profile?.verified === true,
-              rejection: profile?.rejectionMessage ?? null,
             }
           : null,
+      },
+    };
+  }
+
+  async getProfileStatus(this: void, session: UserSession) {
+    const profile = await pharmacyService.getProfile(session.id);
+    const hasCompleteProfile = profile != null;
+
+    return {
+      data: {
+        has_complete_profile: hasCompleteProfile,
+        verified: profile?.verified === true,
+        rejection: profile?.rejectionMessage ?? null,
       },
     };
   }
