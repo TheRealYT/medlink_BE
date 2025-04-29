@@ -9,6 +9,8 @@ import {
 import userGuard from '@/users/user.guard';
 import { UserType } from '@/users/user.model';
 import authGuard from '@/auth/auth.guard';
+import { MedicineDto } from '@/users/pharmacy/medicine.validator';
+import profileGuard from '@/users/pharmacy/profile.guard';
 
 const router = Router();
 
@@ -27,6 +29,13 @@ router.use(userGuard(UserType.PHARMACIST));
 router.get('/profile/status', pass(pharmacyController.getProfileStatus));
 
 router.get('/profile', pass(pharmacyController.getProfile));
+
+router.put(
+  '/medicine/add',
+  profileGuard(),
+  body(MedicineDto),
+  pass(pharmacyController.addMedicine),
+);
 
 router.post(
   '/profile',

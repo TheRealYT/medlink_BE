@@ -13,6 +13,8 @@ import {
   minutesToTimeStr,
   strTimeToMinutes,
 } from '@/users/pharmacy/utils';
+import { MedicineDto } from '@/users/pharmacy/medicine.validator';
+import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -161,6 +163,33 @@ class PharmacyController {
               : null,
         };
       }),
+    };
+  }
+
+  async addMedicine(
+    this: void,
+    _session: UserSession,
+    ctx: PharmacyContext,
+    medicine: Yup.InferType<typeof MedicineDto>,
+  ) {
+    await pharmacyService.addMedicine(ctx.id, {
+      name: medicine.name,
+      description: medicine.description,
+      dosage: medicine.dosage,
+      quantity: medicine.quantity,
+      price: medicine.price,
+      form: medicine.form,
+      batchNumber: medicine.batch_number,
+      manufacturer: medicine.manufacturer,
+      manufacturedDate: medicine.manufactured_date,
+      expiryDate: medicine.expiry_date,
+      prescriptionRequired: medicine.prescription_required,
+      stockThreshold: medicine.stock_threshold,
+      storageInstructions: medicine.storage_instructions,
+    });
+
+    return {
+      statusCode: 201,
     };
   }
 }
