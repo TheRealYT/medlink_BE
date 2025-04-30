@@ -46,7 +46,7 @@ router.use(profileGuard());
 // put routes that require a pharmacy profile
 
 router.put(
-  '/medicine/add',
+  '/medicine',
   body(MedicineDto),
   pass(pharmacyController.addMedicine),
 );
