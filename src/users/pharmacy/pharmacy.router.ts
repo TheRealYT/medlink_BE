@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { body, pass } from '@/utils/parser';
+import { body, pass, query } from '@/utils/parser';
 import pharmacyController from '@/users/pharmacy/pharmacy.controller';
 import {
   PharmacyFilterDto,
@@ -9,6 +9,13 @@ import {
 import userGuard from '@/users/user.guard';
 import { UserType } from '@/users/user.model';
 import authGuard from '@/auth/auth.guard';
+import {
+  MedicineDelDto,
+  MedicineDto,
+  MedicineEditDto,
+  MedicineItemsDto,
+} from '@/users/pharmacy/medicine.validator';
+import profileGuard from '@/users/pharmacy/profile.guard';
 
 const router = Router();
 
@@ -24,12 +31,42 @@ router.use(userGuard(UserType.PHARMACIST));
 
 // put pharmacist only routes here
 
+router.get('/profile/status', pass(pharmacyController.getProfileStatus));
+
 router.get('/profile', pass(pharmacyController.getProfile));
 
 router.post(
   '/profile',
   body(PharmacyProfileDto),
   pass(pharmacyController.setProfile),
+);
+
+router.use(profileGuard());
+
+// put routes that require a pharmacy profile
+
+router.put(
+  '/medicine',
+  body(MedicineDto),
+  pass(pharmacyController.addMedicine),
+);
+
+router.patch(
+  '/medicine',
+  body(MedicineEditDto),
+  pass(pharmacyController.editMedicine),
+);
+
+router.delete(
+  '/medicine',
+  body(MedicineDelDto),
+  pass(pharmacyController.delMedicines),
+);
+
+router.get(
+  '/medicines',
+  query(MedicineItemsDto),
+  pass(pharmacyController.getMedicines),
 );
 
 export default router;

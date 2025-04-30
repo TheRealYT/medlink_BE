@@ -4,6 +4,11 @@ import { UserModel } from '@/users/user.model';
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+export type PharmacyContext = {
+  id: string;
+  verified: boolean;
+};
+
 export type PharmacyFilter = {
   name?: string;
   address?: string;
@@ -11,7 +16,7 @@ export type PharmacyFilter = {
   openHour?: { close?: string; day: string; open?: string };
   delivery?: boolean;
   rating?: number;
-  next?: number;
+  next: number;
 };
 
 // pharmacy profile

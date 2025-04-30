@@ -6,11 +6,10 @@ import {
   PharmacySchema,
 } from '@/users/pharmacy/pharmacy.model';
 import { strTimeToMinutes } from '@/users/pharmacy/utils';
+import { MedicineModel, MedicineSchema } from '@/users/pharmacy/modicine.model';
 
 class PharmacyService {
-  async getProfile(
-    userId: string | Types.ObjectId,
-  ): Promise<InferSchemaType<typeof PharmacySchema> | null> {
+  async getProfile(userId: string | Types.ObjectId) {
     return PharmacyModel.findOne({ user: userId });
   }
 
@@ -75,8 +74,13 @@ class PharmacyService {
 
     // openHours filter
     if (filter.openHour != null) {
-      const openHoursQuery: { $elemMatch: { day: string, open?: number, close?: number } } = {
-      };
+      const openHoursQuery: {
+        $elemMatch: {
+          day: string;
+          open?: object | undefined;
+          close?: object | undefined;
+        };
+      } = { $elemMatch: { day: filter.openHour.day } };
 
       if (filter.openHour.close != null) {
         openHoursQuery.$elemMatch.open = {
@@ -103,7 +107,9 @@ class PharmacyService {
       filterQuery.rating = { $gte: filter.rating };
     }
 
-    return PharmacyModel.find(filterQuery).skip(filter.next).limit(5);
+    return PharmacyModel.find(filterQuery)
+      .skip(filter.next * 5)
+      .limit(5);
   }
 
   getOpenHour(
@@ -120,6 +126,61 @@ class PharmacyService {
     }
 
     return -1;
+  }
+
+  async addMedicine(
+    pharmacyId: string,
+    medicine: Omit<
+      InferSchemaType<typeof MedicineSchema>,
+      'pharmacy' | 'createdAt' | 'updatedAt'
+    >,
+  ) {
+    const newMedicine = new MedicineModel(medicine);
+    newMedicine.pharmacy = new Types.ObjectId(pharmacyId);
+
+    await newMedicine.save();
+
+    return true;
+  }
+
+  async updateMedicine(
+    pharmacyId: string,
+    medicineId: string,
+    medicine: Omit<
+      InferSchemaType<typeof MedicineSchema>,
+      'pharmacy' | 'createdAt' | 'updatedAt'
+    >,
+  ) {
+    await MedicineModel.findOneAndUpdate(
+      {
+        pharmacy: pharmacyId,
+        _id: medicineId,
+      },
+      medicine,
+    );
+  }
+
+  async delMedicines(pharmacyId: string, medicineIds: string[]) {
+    return MedicineModel.deleteMany({
+      $and: [
+        { pharmacy: pharmacyId },
+        {
+          _id: {
+            $in: medicineIds,
+          },
+        },
+      ],
+    });
+  }
+
+  async getMedicines(
+    pharmacyId: string | Types.ObjectId,
+    count: number,
+    page: number,
+  ) {
+    return MedicineModel.find({ pharmacy: pharmacyId })
+      .skip((page - 1) * count)
+      .limit(count);
   }
 }
 

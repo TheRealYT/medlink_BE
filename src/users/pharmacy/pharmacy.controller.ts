@@ -13,6 +13,13 @@ import {
   minutesToTimeStr,
   strTimeToMinutes,
 } from '@/users/pharmacy/utils';
+import {
+  MedicineDelDto,
+  MedicineDto,
+  MedicineEditDto,
+  MedicineItemsDto,
+} from '@/users/pharmacy/medicine.validator';
+import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -59,10 +66,21 @@ class PharmacyController {
               delivery: profile?.delivery,
               phone_number: profile.phoneNumber,
               pharmacy_logo: profile.pharmacyLogo,
-              verified: profile?.verified === true,
-              rejection: profile?.rejectionMessage ?? null,
             }
           : null,
+      },
+    };
+  }
+
+  async getProfileStatus(this: void, session: UserSession) {
+    const profile = await pharmacyService.getProfile(session.id);
+    const hasCompleteProfile = profile != null;
+
+    return {
+      data: {
+        has_complete_profile: hasCompleteProfile,
+        verified: profile?.verified === true,
+        rejection: profile?.rejectionMessage ?? null,
       },
     };
   }
@@ -150,6 +168,104 @@ class PharmacyController {
               : null,
         };
       }),
+    };
+  }
+
+  async addMedicine(
+    this: void,
+    _session: UserSession,
+    ctx: PharmacyContext,
+    medicine: Yup.InferType<typeof MedicineDto>,
+  ) {
+    await pharmacyService.addMedicine(ctx.id, {
+      name: medicine.name,
+      description: medicine.description,
+      dosage: medicine.dosage,
+      quantity: medicine.quantity,
+      price: medicine.price,
+      form: medicine.form,
+      batchNumber: medicine.batch_number,
+      manufacturer: medicine.manufacturer,
+      manufacturedDate: medicine.manufactured_date,
+      expiryDate: medicine.expiry_date,
+      prescriptionRequired: medicine.prescription_required,
+      stockThreshold: medicine.stock_threshold,
+      storageInstructions: medicine.storage_instructions,
+    });
+
+    return {
+      statusCode: 201,
+    };
+  }
+
+  async editMedicine(
+    this: void,
+    _session: UserSession,
+    pharmacy: PharmacyContext,
+    medicine: Yup.InferType<typeof MedicineEditDto>,
+  ) {
+    await pharmacyService.updateMedicine(pharmacy.id, medicine.id, {
+      name: medicine.name,
+      description: medicine.description,
+      dosage: medicine.dosage,
+      quantity: medicine.quantity,
+      price: medicine.price,
+      form: medicine.form,
+      batchNumber: medicine.batch_number,
+      manufacturer: medicine.manufacturer,
+      manufacturedDate: medicine.manufactured_date,
+      expiryDate: medicine.expiry_date,
+      prescriptionRequired: medicine.prescription_required,
+      stockThreshold: medicine.stock_threshold,
+      storageInstructions: medicine.storage_instructions,
+    });
+
+    return {};
+  }
+
+  async delMedicines(
+    this: void,
+    _session: UserSession,
+    pharmacy: PharmacyContext,
+    medicine: Yup.InferType<typeof MedicineDelDto>,
+  ) {
+    const result = await pharmacyService.delMedicines(
+      pharmacy.id,
+      medicine.ids,
+    );
+
+    return {
+      data: {
+        deleted: result.deletedCount,
+      },
+    };
+  }
+
+  async getMedicines(
+    this: void,
+    _session: UserSession,
+    pharmacy: PharmacyContext,
+    items: Yup.InferType<typeof MedicineItemsDto>,
+  ) {
+    const medicines = await pharmacyService.getMedicines(
+      pharmacy.id,
+      items.count,
+      items.page,
+    );
+
+    return {
+      data: medicines.map((m) => ({
+        id: m._id.toString(),
+        name: m.name,
+        dosage: m.dosage,
+        form: m.form,
+        quantity: m.quantity,
+        price: m.price,
+        manufactured_date: m.manufacturedDate,
+        expiry_date: m.expiryDate,
+        prescription_required: m.prescriptionRequired,
+        stock_threshold: m.stockThreshold,
+      })),
     };
   }
 }
