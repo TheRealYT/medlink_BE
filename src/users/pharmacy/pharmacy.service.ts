@@ -107,7 +107,9 @@ class PharmacyService {
       filterQuery.rating = { $gte: filter.rating };
     }
 
-    return PharmacyModel.find(filterQuery).skip(filter.next).limit(5);
+    return PharmacyModel.find(filterQuery)
+      .skip(filter.next * 5)
+      .limit(5);
   }
 
   getOpenHour(
