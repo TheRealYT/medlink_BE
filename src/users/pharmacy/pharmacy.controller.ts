@@ -13,7 +13,10 @@ import {
   minutesToTimeStr,
   strTimeToMinutes,
 } from '@/users/pharmacy/utils';
-import { MedicineDto } from '@/users/pharmacy/medicine.validator';
+import {
+  MedicineDto,
+  MedicineItemsDto,
+} from '@/users/pharmacy/medicine.validator';
 import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
 
 class PharmacyController {
@@ -190,6 +193,34 @@ class PharmacyController {
 
     return {
       statusCode: 201,
+    };
+  }
+
+  async getMedicines(
+    this: void,
+    _session: UserSession,
+    pharmacy: PharmacyContext,
+    items: Yup.InferType<typeof MedicineItemsDto>,
+  ) {
+    const medicines = await pharmacyService.getMedicines(
+      pharmacy.id,
+      items.count,
+      items.page,
+    );
+
+    return {
+      data: medicines.map((m) => ({
+        id: m._id.toString(),
+        name: m.name,
+        dosage: m.dosage,
+        form: m.form,
+        quantity: m.quantity,
+        price: m.price,
+        manufactured_date: m.manufacturedDate,
+        expiry_date: m.expiryDate,
+        prescription_required: m.prescriptionRequired,
+        stock_threshold: m.stockThreshold,
+      })),
     };
   }
 }

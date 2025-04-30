@@ -35,3 +35,8 @@ export const MedicineDto = Yup.object({
     .default(0)
     .optional(),
 });
+
+export const MedicineItemsDto = Yup.object({
+  count: Yup.number().integer().positive().default(10).max(20).optional(),
+  page: Yup.number().integer().positive().default(1).optional(),
+});

@@ -142,6 +142,16 @@ class PharmacyService {
 
     return true;
   }
+
+  async getMedicines(
+    pharmacyId: string | Types.ObjectId,
+    count: number,
+    page: number,
+  ) {
+    return MedicineModel.find({ pharmacy: pharmacyId })
+      .skip((page - 1) * count)
+      .limit(count);
+  }
 }
 
 export default new PharmacyService();

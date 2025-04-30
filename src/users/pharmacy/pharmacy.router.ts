@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { body, pass } from '@/utils/parser';
+import { body, pass, query } from '@/utils/parser';
 import pharmacyController from '@/users/pharmacy/pharmacy.controller';
 import {
   PharmacyFilterDto,
@@ -9,7 +9,10 @@ import {
 import userGuard from '@/users/user.guard';
 import { UserType } from '@/users/user.model';
 import authGuard from '@/auth/auth.guard';
-import { MedicineDto } from '@/users/pharmacy/medicine.validator';
+import {
+  MedicineDto,
+  MedicineItemsDto,
+} from '@/users/pharmacy/medicine.validator';
 import profileGuard from '@/users/pharmacy/profile.guard';
 
 const router = Router();
@@ -35,6 +38,13 @@ router.put(
   profileGuard(),
   body(MedicineDto),
   pass(pharmacyController.addMedicine),
+);
+
+router.get(
+  '/medicines',
+  profileGuard(),
+  query(MedicineItemsDto),
+  pass(pharmacyController.getMedicines),
 );
 
 router.post(
