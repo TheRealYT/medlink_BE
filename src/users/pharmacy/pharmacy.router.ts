@@ -33,24 +33,26 @@ router.get('/profile/status', pass(pharmacyController.getProfileStatus));
 
 router.get('/profile', pass(pharmacyController.getProfile));
 
+router.post(
+  '/profile',
+  body(PharmacyProfileDto),
+  pass(pharmacyController.setProfile),
+);
+
+router.use(profileGuard());
+
+// put routes that require a pharmacy profile
+
 router.put(
   '/medicine/add',
-  profileGuard(),
   body(MedicineDto),
   pass(pharmacyController.addMedicine),
 );
 
 router.get(
   '/medicines',
-  profileGuard(),
   query(MedicineItemsDto),
   pass(pharmacyController.getMedicines),
-);
-
-router.post(
-  '/profile',
-  body(PharmacyProfileDto),
-  pass(pharmacyController.setProfile),
 );
 
 export default router;
