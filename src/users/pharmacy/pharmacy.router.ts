@@ -10,7 +10,9 @@ import userGuard from '@/users/user.guard';
 import { UserType } from '@/users/user.model';
 import authGuard from '@/auth/auth.guard';
 import {
+  MedicineDelDto,
   MedicineDto,
+  MedicineEditDto,
   MedicineItemsDto,
 } from '@/users/pharmacy/medicine.validator';
 import profileGuard from '@/users/pharmacy/profile.guard';
@@ -47,6 +49,18 @@ router.put(
   '/medicine/add',
   body(MedicineDto),
   pass(pharmacyController.addMedicine),
+);
+
+router.patch(
+  '/medicine',
+  body(MedicineEditDto),
+  pass(pharmacyController.editMedicine),
+);
+
+router.delete(
+  '/medicine',
+  body(MedicineDelDto),
+  pass(pharmacyController.delMedicines),
 );
 
 router.get(

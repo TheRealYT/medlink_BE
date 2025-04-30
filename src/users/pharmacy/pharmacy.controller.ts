@@ -14,7 +14,9 @@ import {
   strTimeToMinutes,
 } from '@/users/pharmacy/utils';
 import {
+  MedicineDelDto,
   MedicineDto,
+  MedicineEditDto,
   MedicineItemsDto,
 } from '@/users/pharmacy/medicine.validator';
 import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
@@ -193,6 +195,49 @@ class PharmacyController {
 
     return {
       statusCode: 201,
+    };
+  }
+
+  async editMedicine(
+    this: void,
+    _session: UserSession,
+    pharmacy: PharmacyContext,
+    medicine: Yup.InferType<typeof MedicineEditDto>,
+  ) {
+    await pharmacyService.updateMedicine(pharmacy.id, medicine.id, {
+      name: medicine.name,
+      description: medicine.description,
+      dosage: medicine.dosage,
+      quantity: medicine.quantity,
+      price: medicine.price,
+      form: medicine.form,
+      batchNumber: medicine.batch_number,
+      manufacturer: medicine.manufacturer,
+      manufacturedDate: medicine.manufactured_date,
+      expiryDate: medicine.expiry_date,
+      prescriptionRequired: medicine.prescription_required,
+      stockThreshold: medicine.stock_threshold,
+      storageInstructions: medicine.storage_instructions,
+    });
+
+    return {};
+  }
+
+  async delMedicines(
+    this: void,
+    _session: UserSession,
+    pharmacy: PharmacyContext,
+    medicine: Yup.InferType<typeof MedicineDelDto>,
+  ) {
+    const result = await pharmacyService.delMedicines(
+      pharmacy.id,
+      medicine.ids,
+    );
+
+    return {
+      data: {
+        deleted: result.deletedCount,
+      },
     };
   }
 

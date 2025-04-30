@@ -36,6 +36,17 @@ export const MedicineDto = Yup.object({
     .optional(),
 });
 
+export const MedicineEditDto = MedicineDto.clone().shape({
+  id: Yup.string().required('Medicine id is required'),
+});
+
+export const MedicineDelDto = Yup.object({
+  ids: Yup.array()
+    .of(Yup.string().required())
+    .min(1, 'At least one medicine id is required')
+    .required('Medicine ids is required'),
+});
+
 export const MedicineItemsDto = Yup.object({
   count: Yup.number().integer().positive().default(10).max(20).optional(),
   page: Yup.number().integer().positive().default(1).optional(),

@@ -143,6 +143,36 @@ class PharmacyService {
     return true;
   }
 
+  async updateMedicine(
+    pharmacyId: string,
+    medicineId: string,
+    medicine: Omit<
+      InferSchemaType<typeof MedicineSchema>,
+      'pharmacy' | 'createdAt' | 'updatedAt'
+    >,
+  ) {
+    await MedicineModel.findOneAndUpdate(
+      {
+        pharmacy: pharmacyId,
+        _id: medicineId,
+      },
+      medicine,
+    );
+  }
+
+  async delMedicines(pharmacyId: string, medicineIds: string[]) {
+    return MedicineModel.deleteMany({
+      $and: [
+        { pharmacy: pharmacyId },
+        {
+          _id: {
+            $in: medicineIds,
+          },
+        },
+      ],
+    });
+  }
+
   async getMedicines(
     pharmacyId: string | Types.ObjectId,
     count: number,
