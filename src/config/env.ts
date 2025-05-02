@@ -34,6 +34,7 @@ const envSchema = Yup.object().shape({
     .matches(/^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/, 'Invalid email domain')
     .required(),
   FRONTEND_URL: Yup.string().url(),
+  GEMINI_API_KEY: Yup.string().required(),
   // define more variables here
 });
 
