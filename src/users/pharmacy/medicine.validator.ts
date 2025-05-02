@@ -67,6 +67,8 @@ export const MedicineFilterDto = Yup.object({
     max: Yup.number()
       .min(0)
       .optional()
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       .when('min', (min, schema) => (min != null ? schema.min(min) : schema)),
   }).optional(),
   availability: Yup.mixed<MedicineAvailability>()

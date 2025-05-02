@@ -189,7 +189,7 @@ class PharmacyService {
 
   searchMedicine(
     filter: MedicineFilter,
-  ): Promise<InferSchemaType<typeof MedicineModel>[] | null> {
+  ): Promise<InferSchemaType<typeof MedicineSchema>[] | null> {
     const query: FilterQuery<typeof MedicineModel> = {
       ...(filter.name && { name: { $regex: filter.name, $options: 'i' } }),
       ...(filter.category && { category: filter.category }),
