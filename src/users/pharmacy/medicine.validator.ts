@@ -1,13 +1,18 @@
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
 
-import { MedicineForms } from '@/users/pharmacy/modicine.model';
+import {
+  MedicineAvailability,
+  MedicineCategories,
+  MedicineForms,
+} from '@/users/pharmacy/modicine.model';
 
 export const MedicineDto = Yup.object({
   name: Yup.string().required('Medicine name is required'),
   description: Yup.string().optional(),
   dosage: Yup.string().required('Dosage/strength is required'),
   form: Yup.string().oneOf(MedicineForms).required('Form is required'),
+  category: Yup.string().oneOf(MedicineCategories).optional(),
   quantity: Yup.number()
     .positive('Quantity must be greater than zero')
     .required('Quantity is required'),
