@@ -10,6 +10,7 @@ import userGuard from '@/users/user.guard';
 import { UserType } from '@/users/user.model';
 import authGuard from '@/auth/auth.guard';
 import {
+  MedicineAIDto,
   MedicineDelDto,
   MedicineDto,
   MedicineEditDto,
@@ -32,6 +33,12 @@ router.post(
   '/medicine/search',
   body(MedicineFilterDto),
   pass(pharmacyController.searchMedicine),
+);
+
+router.post(
+  '/medicine/ask-ai',
+  body(MedicineAIDto),
+  pass(pharmacyController.getMedicineAI),
 );
 
 router.use(userGuard(UserType.PHARMACIST));

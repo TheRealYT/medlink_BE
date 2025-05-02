@@ -76,3 +76,10 @@ export const MedicineFilterDto = Yup.object({
   manufacturer: Yup.string().optional(),
   next: Yup.number().integer().min(0).default(0).optional(),
 });
+
+export const MedicineAIDto = Yup.object({
+  description: Yup.string()
+    .min(15)
+    .max(100)
+    .required('Description is required'),
+});

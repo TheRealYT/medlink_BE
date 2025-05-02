@@ -14,6 +14,7 @@ import {
   strTimeToMinutes,
 } from '@/users/pharmacy/utils';
 import {
+  MedicineAIDto,
   MedicineDelDto,
   MedicineDto,
   MedicineEditDto,
@@ -22,6 +23,7 @@ import {
 } from '@/users/pharmacy/medicine.validator';
 import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
 import { MedicineAvailability } from '@/users/pharmacy/modicine.model';
+import aiService from '@/users/pharmacy/ai.service';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -305,6 +307,16 @@ class PharmacyController {
         price: m.price,
         quantity: m.quantity,
       })),
+    };
+  }
+
+  async getMedicineAI(
+    this: void,
+    session: UserSession,
+    medicine: Yup.InferType<typeof MedicineAIDto>,
+  ) {
+    return {
+      data: await aiService.getMedicines(medicine.description),
     };
   }
 }
