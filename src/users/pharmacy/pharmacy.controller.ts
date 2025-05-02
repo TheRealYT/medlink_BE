@@ -17,9 +17,11 @@ import {
   MedicineDelDto,
   MedicineDto,
   MedicineEditDto,
+  MedicineFilterDto,
   MedicineItemsDto,
 } from '@/users/pharmacy/medicine.validator';
 import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
+import { MedicineAvailability } from '@/users/pharmacy/modicine.model';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -265,6 +267,43 @@ class PharmacyController {
         expiry_date: m.expiryDate,
         prescription_required: m.prescriptionRequired,
         stock_threshold: m.stockThreshold,
+      })),
+    };
+  }
+
+  async searchMedicine(
+    this: void,
+    session: UserSession,
+    filter: Yup.InferType<typeof MedicineFilterDto>,
+  ) {
+    const medicines =
+      (await pharmacyService.searchMedicine({
+        name: filter.name,
+        dosage: filter.dosage,
+        form: filter.form,
+        prescriptionRequired: filter.prescription_required,
+        availability: filter.availability,
+        category: filter.category,
+        manufacturer: filter.manufacturer,
+        priceRange: filter.price_range,
+        next: filter.next,
+      })) ?? [];
+
+    return {
+      data: medicines.map((m) => ({
+        name: m.name,
+        dosage: m.dosage,
+        form: m.form,
+        prescription_required: m.prescriptionRequired,
+        availability: (m.quantity == 0
+          ? 'out_of_stock'
+          : m.quantity <= m.stockThreshold
+            ? 'low_stock'
+            : 'in_stock') as MedicineAvailability,
+        category: m.category,
+        manufacturer: m.manufacturer,
+        price: m.price,
+        quantity: m.quantity,
       })),
     };
   }

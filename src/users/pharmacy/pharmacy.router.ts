@@ -13,6 +13,7 @@ import {
   MedicineDelDto,
   MedicineDto,
   MedicineEditDto,
+  MedicineFilterDto,
   MedicineItemsDto,
 } from '@/users/pharmacy/medicine.validator';
 import profileGuard from '@/users/pharmacy/profile.guard';
@@ -26,6 +27,12 @@ router.use(authGuard());
 // put any authenticated user accessible routes here
 
 router.post('/find', body(PharmacyFilterDto), pass(pharmacyController.find));
+
+router.post(
+  '/medicine/search',
+  body(MedicineFilterDto),
+  pass(pharmacyController.searchMedicine),
+);
 
 router.use(userGuard(UserType.PHARMACIST));
 

@@ -56,3 +56,23 @@ export const MedicineItemsDto = Yup.object({
   count: Yup.number().integer().positive().default(10).max(20).optional(),
   page: Yup.number().integer().positive().default(1).optional(),
 });
+
+export const MedicineFilterDto = Yup.object({
+  name: Yup.string().required('Medicine name is required'),
+  category: Yup.string().optional(),
+  form: Yup.string().optional(),
+  dosage: Yup.string().optional(),
+  price_range: Yup.object({
+    min: Yup.number().min(0).optional(),
+    max: Yup.number()
+      .min(0)
+      .optional()
+      .when('min', (min, schema) => (min != null ? schema.min(min) : schema)),
+  }).optional(),
+  availability: Yup.mixed<MedicineAvailability>()
+    .oneOf(['in_stock', 'low_stock', 'out_of_stock'])
+    .optional(),
+  prescription_required: Yup.boolean().optional(),
+  manufacturer: Yup.string().optional(),
+  next: Yup.number().integer().min(0).default(0).optional(),
+});

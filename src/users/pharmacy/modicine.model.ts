@@ -29,6 +29,23 @@ export const MedicineCategories = [
   'antifungal',
 ];
 
+export type MedicineAvailability = 'in_stock' | 'low_stock' | 'out_of_stock';
+
+export type MedicineFilter = {
+  name: string;
+  category?: string;
+  form?: string;
+  dosage?: string;
+  priceRange?: {
+    min?: number;
+    max?: number;
+  };
+  availability?: MedicineAvailability;
+  prescriptionRequired?: boolean;
+  manufacturer?: string;
+  next: number;
+};
+
 export const MedicineSchema = new Schema(
   {
     pharmacy: {
