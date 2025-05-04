@@ -58,6 +58,7 @@ export const MedicineItemsDto = Yup.object({
 });
 
 export const MedicineFilterDto = Yup.object({
+  pharmacy_id: Yup.string().length(24).optional(),
   name: Yup.string().required('Medicine name is required'),
   category: Yup.string().optional(),
   form: Yup.string().optional(),

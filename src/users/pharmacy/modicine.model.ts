@@ -32,6 +32,7 @@ export const MedicineCategories = [
 export type MedicineAvailability = 'in_stock' | 'low_stock' | 'out_of_stock';
 
 export type MedicineFilter = {
+  pharmacyId?: string;
   name: string;
   category?: string;
   form?: string;

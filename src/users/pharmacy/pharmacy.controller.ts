@@ -280,6 +280,7 @@ class PharmacyController {
   ) {
     const medicines =
       (await pharmacyService.searchMedicine({
+        pharmacyId: filter.pharmacy_id,
         name: filter.name,
         dosage: filter.dosage,
         form: filter.form,
@@ -293,6 +294,8 @@ class PharmacyController {
 
     return {
       data: medicines.map((m) => ({
+        id: m._id.toString(),
+        pharmacyId: m.pharmacy.toString(),
         name: m.name,
         dosage: m.dosage,
         form: m.form,
