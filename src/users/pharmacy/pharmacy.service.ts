@@ -6,7 +6,11 @@ import {
   PharmacySchema,
 } from '@/users/pharmacy/pharmacy.model';
 import { strTimeToMinutes } from '@/users/pharmacy/utils';
-import { MedicineModel, MedicineSchema } from '@/users/pharmacy/modicine.model';
+import {
+  MedicineFilter,
+  MedicineModel,
+  MedicineSchema,
+} from '@/users/pharmacy/modicine.model';
 
 class PharmacyService {
   async getProfile(userId: string | Types.ObjectId) {
@@ -181,6 +185,66 @@ class PharmacyService {
     return MedicineModel.find({ pharmacy: pharmacyId })
       .skip((page - 1) * count)
       .limit(count);
+  }
+
+  searchMedicine(filter: MedicineFilter): Promise<
+    | (InferSchemaType<typeof MedicineSchema> & {
+        _id: { toString: () => string };
+      })[]
+    | null
+  > {
+    const query: FilterQuery<typeof MedicineModel> = {
+      ...(filter.pharmacyId && { pharmacy: filter.pharmacyId }),
+      ...(filter.name && { name: { $regex: filter.name, $options: 'i' } }),
+      ...(filter.category && { category: filter.category }),
+      ...(filter.form && { form: filter.form }),
+      ...(filter.dosage && { dosage: filter.dosage }),
+      ...(filter.prescriptionRequired != null && {
+        prescriptionRequired: filter.prescriptionRequired,
+      }),
+      ...(filter.manufacturer && {
+        manufacturer: { $regex: filter.manufacturer, $options: 'i' },
+      }),
+    };
+
+    if (
+      filter.priceRange &&
+      (filter.priceRange.max != null || filter.priceRange.min != null)
+    ) {
+      query.price = {
+        ...(filter.priceRange.min != null && { $gte: filter.priceRange.min }),
+        ...(filter.priceRange.max != null && { $lte: filter.priceRange.max }),
+      };
+    }
+
+    if (filter.availability) {
+      if (filter.availability === 'in_stock') {
+        query.quantity = { $gt: 0 };
+      } else if (filter.availability === 'low_stock') {
+        // low_stock requires aggregation, so handle separately
+        return MedicineModel.aggregate([
+          { $match: query },
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $gt: ['$quantity', 0] },
+                  { $lte: ['$quantity', '$stockThreshold'] },
+                ],
+              },
+            },
+          },
+          { $skip: filter.next * 5 },
+          { $limit: 5 },
+        ]);
+      } else if (filter.availability === 'out_of_stock') {
+        query.quantity = { $eq: 0 };
+      }
+    }
+
+    return MedicineModel.find(query)
+      .skip(filter.next * 5)
+      .limit(5);
   }
 }
 

@@ -1,13 +1,18 @@
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
 
-import { MedicineForms } from '@/users/pharmacy/modicine.model';
+import {
+  MedicineAvailability,
+  MedicineCategories,
+  MedicineForms,
+} from '@/users/pharmacy/modicine.model';
 
 export const MedicineDto = Yup.object({
   name: Yup.string().required('Medicine name is required'),
   description: Yup.string().optional(),
   dosage: Yup.string().required('Dosage/strength is required'),
   form: Yup.string().oneOf(MedicineForms).required('Form is required'),
+  category: Yup.string().oneOf(MedicineCategories).optional(),
   quantity: Yup.number()
     .positive('Quantity must be greater than zero')
     .required('Quantity is required'),
@@ -50,4 +55,34 @@ export const MedicineDelDto = Yup.object({
 export const MedicineItemsDto = Yup.object({
   count: Yup.number().integer().positive().default(10).max(20).optional(),
   page: Yup.number().integer().positive().default(1).optional(),
+});
+
+export const MedicineFilterDto = Yup.object({
+  pharmacy_id: Yup.string().length(24).optional(),
+  name: Yup.string().required('Medicine name is required'),
+  category: Yup.string().optional(),
+  form: Yup.string().optional(),
+  dosage: Yup.string().optional(),
+  price_range: Yup.object({
+    min: Yup.number().min(0).optional(),
+    max: Yup.number()
+      .min(0)
+      .optional()
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      .when('min', (min, schema) => (min != null ? schema.min(min) : schema)),
+  }).optional(),
+  availability: Yup.mixed<MedicineAvailability>()
+    .oneOf(['in_stock', 'low_stock', 'out_of_stock'])
+    .optional(),
+  prescription_required: Yup.boolean().optional(),
+  manufacturer: Yup.string().optional(),
+  next: Yup.number().integer().min(0).default(0).optional(),
+});
+
+export const MedicineAIDto = Yup.object({
+  description: Yup.string()
+    .min(15)
+    .max(100)
+    .required('Description is required'),
 });

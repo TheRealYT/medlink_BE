@@ -4,6 +4,49 @@ import { PharmacyModel } from '@/users/pharmacy/pharmacy.model';
 
 export const MedicineForms = ['tablet', 'syrup', 'injection', 'cream'];
 
+export const MedicineCategories = [
+  'paracetamol',
+  'ibuprofen',
+  'amoxicillin',
+  'azithromycin',
+  'metformin',
+  'atorvastatin',
+  'omeprazole',
+  'cetirizine',
+  'cough syrup',
+  'pain reliever',
+  'antibiotic',
+  'antacid',
+  'antihistamine',
+  'diabetes',
+  'hypertension',
+  'vitamin',
+  'multivitamin',
+  'cough suppressant',
+  'fever reducer',
+  'antiseptic',
+  'anti-inflammatory',
+  'antifungal',
+];
+
+export type MedicineAvailability = 'in_stock' | 'low_stock' | 'out_of_stock';
+
+export type MedicineFilter = {
+  pharmacyId?: string;
+  name: string;
+  category?: string;
+  form?: string;
+  dosage?: string;
+  priceRange?: {
+    min?: number;
+    max?: number;
+  };
+  availability?: MedicineAvailability;
+  prescriptionRequired?: boolean;
+  manufacturer?: string;
+  next: number;
+};
+
 export const MedicineSchema = new Schema(
   {
     pharmacy: {
@@ -25,6 +68,10 @@ export const MedicineSchema = new Schema(
       type: String,
       enum: MedicineForms,
       required: true,
+    },
+    category: {
+      type: String,
+      enum: MedicineCategories,
     },
     quantity: {
       type: Number,
