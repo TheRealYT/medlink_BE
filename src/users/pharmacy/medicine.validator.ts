@@ -11,8 +11,12 @@ export const MedicineDto = Yup.object({
   name: Yup.string().required('Medicine name is required'),
   description: Yup.string().optional(),
   dosage: Yup.string().required('Dosage/strength is required'),
-  form: Yup.string().oneOf(MedicineForms).required('Form is required'),
-  category: Yup.string().oneOf(MedicineCategories).optional(),
+  form: Yup.mixed<MedicineForms>()
+    .oneOf(Object.values(MedicineForms) as MedicineForms[])
+    .required('Form is required'),
+  category: Yup.mixed<MedicineCategories>()
+    .oneOf(Object.values(MedicineCategories) as MedicineCategories[])
+    .required(),
   quantity: Yup.number()
     .positive('Quantity must be greater than zero')
     .required('Quantity is required'),

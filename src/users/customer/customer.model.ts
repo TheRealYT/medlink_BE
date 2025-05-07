@@ -3,10 +3,16 @@ import { model, Schema } from 'mongoose';
 import { UserModel } from '@/users/user.model';
 
 export enum HealthCondition {
-  DIABETES = 'diabetes',
-  HYPERTENSION = 'hypertension',
-  PREGNANCY = 'pregnancy',
+  Diabetes = 'diabetes',
+  Hypertension = 'hypertension',
+  Pregnancy = 'pregnancy',
 }
+
+export const OnlyHealthCondition: Partial<
+  Record<keyof typeof HealthCondition, 'M' | 'F'>
+> = {
+  Pregnancy: 'F',
+};
 
 // customer profile
 export const CustomerSchema = new Schema(

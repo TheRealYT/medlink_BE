@@ -1,7 +1,10 @@
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
 
-import { HealthCondition } from '@/users/customer/customer.model';
+import {
+  HealthCondition,
+  OnlyHealthCondition,
+} from '@/users/customer/customer.model';
 import {
   address,
   genderRegex,
@@ -44,7 +47,7 @@ const healthDetails = Yup.array()
     const { gender } = this.parent;
 
     for (let i = 0; i < values.length; i++) {
-      if (gender === 'M' && values[i] === HealthCondition.PREGNANCY) {
+      if ((values[i] === OnlyHealthCondition[values[i] as string]) !== gender) {
         return this.createError({
           path: `${this.path}[${i}]`,
           message: 'This health condition is not valid for your gender',

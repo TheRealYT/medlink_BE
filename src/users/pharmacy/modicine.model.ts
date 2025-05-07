@@ -2,32 +2,37 @@ import { model, Schema } from 'mongoose';
 
 import { PharmacyModel } from '@/users/pharmacy/pharmacy.model';
 
-export const MedicineForms = ['tablet', 'syrup', 'injection', 'cream'];
+export enum MedicineForms {
+  Tablet = 'tablet',
+  Syrup = 'syrup',
+  Injection = 'injection',
+  Cream = 'cream',
+}
 
-export const MedicineCategories = [
-  'paracetamol',
-  'ibuprofen',
-  'amoxicillin',
-  'azithromycin',
-  'metformin',
-  'atorvastatin',
-  'omeprazole',
-  'cetirizine',
-  'cough syrup',
-  'pain reliever',
-  'antibiotic',
-  'antacid',
-  'antihistamine',
-  'diabetes',
-  'hypertension',
-  'vitamin',
-  'multivitamin',
-  'cough suppressant',
-  'fever reducer',
-  'antiseptic',
-  'anti-inflammatory',
-  'antifungal',
-];
+export enum MedicineCategories {
+  Paracetamol = 'paracetamol',
+  Ibuprofen = 'ibuprofen',
+  Amoxicillin = 'amoxicillin',
+  Azithromycin = 'azithromycin',
+  Metformin = 'metformin',
+  Atorvastatin = 'atorvastatin',
+  Omeprazole = 'omeprazole',
+  Cetirizine = 'cetirizine',
+  Cough_Syrup = 'cough_syrup',
+  Pain_Reliever = 'pain_reliever',
+  Antibiotic = 'antibiotic',
+  Antacid = 'antacid',
+  Antihistamine = 'antihistamine',
+  Diabetes = 'diabetes',
+  Hypertension = 'hypertension',
+  Vitamin = 'vitamin',
+  Multivitamin = 'multivitamin',
+  Cough_Suppressant = 'cough_suppressant',
+  Fever_Reducer = 'fever_reducer',
+  Antiseptic = 'antiseptic',
+  Anti_Inflammatory = 'anti-inflammatory',
+  Antifungal = 'antifungal',
+}
 
 export type MedicineAvailability = 'in_stock' | 'low_stock' | 'out_of_stock';
 

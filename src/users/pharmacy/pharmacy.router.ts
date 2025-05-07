@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { body, pass, query } from '@/utils/parser';
+import { body, enumToStr, pass, query } from '@/utils/parser';
 import pharmacyController from '@/users/pharmacy/pharmacy.controller';
 import {
   PharmacyFilterDto,
@@ -18,10 +18,18 @@ import {
   MedicineItemsDto,
 } from '@/users/pharmacy/medicine.validator';
 import profileGuard from '@/users/pharmacy/profile.guard';
+import {
+  MedicineCategories,
+  MedicineForms,
+} from '@/users/pharmacy/modicine.model';
 
 const router = Router();
 
 // put publicly accessible routes here
+
+router.get('/medicine/forms', enumToStr(MedicineForms));
+
+router.get('/medicine/categories', enumToStr(MedicineCategories));
 
 router.use(authGuard());
 
