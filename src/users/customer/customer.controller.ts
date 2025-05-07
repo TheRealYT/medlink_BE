@@ -55,7 +55,7 @@ class CustomerController {
     let profilePicture: string | undefined = undefined;
 
     if (data.image) {
-      const fileName = await userService.uploadProfile(session.id, data.image);
+      const fileName = await userService.uploadImage(session.id, data.image);
       if (!fileName) throw new BadRequestError('Failed to upload image.');
 
       profilePicture = fileName;

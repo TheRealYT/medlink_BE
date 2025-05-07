@@ -38,7 +38,7 @@ export type MedicineAvailability = 'in_stock' | 'low_stock' | 'out_of_stock';
 
 export type MedicineFilter = {
   pharmacyId?: string;
-  name: string;
+  name?: string;
   category?: string;
   form?: string;
   dosage?: string;
@@ -107,6 +107,7 @@ export const MedicineSchema = new Schema(
       type: Number,
       default: 0,
     },
+    image: String,
   },
   {
     timestamps: true,

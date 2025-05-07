@@ -6,6 +6,7 @@ import {
   MedicineCategories,
   MedicineForms,
 } from '@/users/pharmacy/modicine.model';
+import { image } from '@/users/user.validator';
 
 export const MedicineDto = Yup.object({
   name: Yup.string().required('Medicine name is required'),
@@ -43,6 +44,7 @@ export const MedicineDto = Yup.object({
     .min(0, 'Stock threshold cannot be negative')
     .default(0)
     .optional(),
+  image,
 });
 
 export const MedicineEditDto = MedicineDto.clone().shape({
@@ -63,7 +65,7 @@ export const MedicineItemsDto = Yup.object({
 
 export const MedicineFilterDto = Yup.object({
   pharmacy_id: Yup.string().length(24).optional(),
-  name: Yup.string().required('Medicine name is required'),
+  name: Yup.string().optional(),
   category: Yup.string().optional(),
   form: Yup.string().optional(),
   dosage: Yup.string().optional(),

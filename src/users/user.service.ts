@@ -40,7 +40,7 @@ class UserService {
   }
 
   // fileName without extension
-  async uploadProfile(fileName: string, dataUrl: string) {
+  async uploadImage(fileName: string, dataUrl: string) {
     // `data:image/png;base64,...`
 
     const start = dataUrl.indexOf(':') + 1;
@@ -60,6 +60,19 @@ class UserService {
       } catch (err) {
         logger.error('Failed to upload file:', err);
       }
+    }
+
+    return false;
+  }
+
+  async deleteImage(filenameExt: string) {
+    try {
+      const filePath = path.join(PROFILE_DIR, filenameExt);
+      await fs.unlink(filePath);
+
+      return true;
+    } catch (err) {
+      logger.error('Failed to delete file:', err);
     }
 
     return false;

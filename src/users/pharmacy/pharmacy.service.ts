@@ -142,9 +142,7 @@ class PharmacyService {
     const newMedicine = new MedicineModel(medicine);
     newMedicine.pharmacy = new Types.ObjectId(pharmacyId);
 
-    await newMedicine.save();
-
-    return true;
+    return await newMedicine.save();
   }
 
   async updateMedicine(
@@ -155,12 +153,13 @@ class PharmacyService {
       'pharmacy' | 'createdAt' | 'updatedAt'
     >,
   ) {
-    await MedicineModel.findOneAndUpdate(
+    return MedicineModel.findOneAndUpdate(
       {
         pharmacy: pharmacyId,
         _id: medicineId,
       },
       medicine,
+      { new: true },
     );
   }
 

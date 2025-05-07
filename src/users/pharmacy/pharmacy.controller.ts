@@ -24,6 +24,7 @@ import {
 import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
 import { MedicineAvailability } from '@/users/pharmacy/modicine.model';
 import aiService from '@/users/pharmacy/ai.service';
+import { logger } from '@/utils';
 
 class PharmacyController {
   async getProfile(this: void, session: UserSession) {
@@ -97,7 +98,7 @@ class PharmacyController {
     let pharmacyLogo: string | undefined = undefined;
 
     if (data.image) {
-      const fileName = await userService.uploadProfile(session.id, data.image);
+      const fileName = await userService.uploadImage(session.id, data.image);
       if (!fileName) throw new BadRequestError('Failed to upload image.');
 
       pharmacyLogo = fileName;
@@ -181,7 +182,7 @@ class PharmacyController {
     ctx: PharmacyContext,
     medicine: Yup.InferType<typeof MedicineDto>,
   ) {
-    await pharmacyService.addMedicine(ctx.id, {
+    const newMedicine = await pharmacyService.addMedicine(ctx.id, {
       name: medicine.name,
       description: medicine.description,
       dosage: medicine.dosage,
@@ -189,6 +190,7 @@ class PharmacyController {
       price: medicine.price,
       form: medicine.form,
       batchNumber: medicine.batch_number,
+      category: medicine.category,
       manufacturer: medicine.manufacturer,
       manufacturedDate: medicine.manufactured_date,
       expiryDate: medicine.expiry_date,
@@ -196,6 +198,21 @@ class PharmacyController {
       stockThreshold: medicine.stock_threshold,
       storageInstructions: medicine.storage_instructions,
     });
+
+    if (medicine.image) {
+      const image = medicine.image;
+
+      (async () => {
+        const fileName = await userService.uploadImage(
+          `med-${newMedicine._id.toString()}`,
+          image,
+        );
+        if (fileName) {
+          newMedicine.image = fileName;
+          await newMedicine.save();
+        }
+      })().catch(logger.error);
+    }
 
     return {
       statusCode: 201,
@@ -208,21 +225,50 @@ class PharmacyController {
     pharmacy: PharmacyContext,
     medicine: Yup.InferType<typeof MedicineEditDto>,
   ) {
-    await pharmacyService.updateMedicine(pharmacy.id, medicine.id, {
-      name: medicine.name,
-      description: medicine.description,
-      dosage: medicine.dosage,
-      quantity: medicine.quantity,
-      price: medicine.price,
-      form: medicine.form,
-      batchNumber: medicine.batch_number,
-      manufacturer: medicine.manufacturer,
-      manufacturedDate: medicine.manufactured_date,
-      expiryDate: medicine.expiry_date,
-      prescriptionRequired: medicine.prescription_required,
-      stockThreshold: medicine.stock_threshold,
-      storageInstructions: medicine.storage_instructions,
-    });
+    const newMedicine = await pharmacyService.updateMedicine(
+      pharmacy.id,
+      medicine.id,
+      {
+        name: medicine.name,
+        description: medicine.description,
+        dosage: medicine.dosage,
+        quantity: medicine.quantity,
+        price: medicine.price,
+        form: medicine.form,
+        batchNumber: medicine.batch_number,
+        category: medicine.category,
+        manufacturer: medicine.manufacturer,
+        manufacturedDate: medicine.manufactured_date,
+        expiryDate: medicine.expiry_date,
+        prescriptionRequired: medicine.prescription_required,
+        stockThreshold: medicine.stock_threshold,
+        storageInstructions: medicine.storage_instructions,
+      },
+    );
+
+    if (newMedicine == null)
+      throw new NotFoundError('Medicine cannot be found.');
+
+    if (medicine.image) {
+      const image = medicine.image;
+
+      (async () => {
+        const fileName = await userService.uploadImage(
+          `med-${newMedicine._id.toString()}`,
+          image,
+        );
+        if (fileName) {
+          const oldFileName = newMedicine.image;
+
+          newMedicine.image = fileName;
+          await newMedicine.save();
+
+          if (oldFileName && oldFileName != fileName) {
+            await userService.deleteImage(oldFileName);
+          }
+        }
+      })().catch(logger.error);
+    }
 
     return {};
   }
@@ -265,10 +311,12 @@ class PharmacyController {
         form: m.form,
         quantity: m.quantity,
         price: m.price,
+        category: m.category,
         manufactured_date: m.manufacturedDate,
         expiry_date: m.expiryDate,
         prescription_required: m.prescriptionRequired,
         stock_threshold: m.stockThreshold,
+        image: m.image,
       })),
     };
   }
@@ -309,6 +357,7 @@ class PharmacyController {
         manufacturer: m.manufacturer,
         price: m.price,
         quantity: m.quantity,
+        image: m.image,
       })),
     };
   }
