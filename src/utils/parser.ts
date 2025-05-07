@@ -128,3 +128,21 @@ export function pass(
     }
   };
 }
+
+// convert string enum to label->value array
+export function enumToStr(enumObj: Record<string, string>) {
+  return (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result: SuccessResponse = {
+        data: Object.entries(enumObj).map(([label, value]) => ({
+          label: label.replaceAll('_', ' '),
+          value,
+        })),
+      };
+
+      res.success(result);
+    } catch (err) {
+      next(err);
+    }
+  };
+}
