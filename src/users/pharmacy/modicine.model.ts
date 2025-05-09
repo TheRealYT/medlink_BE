@@ -10,28 +10,26 @@ export enum MedicineForms {
 }
 
 export enum MedicineCategories {
-  Paracetamol = 'paracetamol',
-  Ibuprofen = 'ibuprofen',
-  Amoxicillin = 'amoxicillin',
-  Azithromycin = 'azithromycin',
-  Metformin = 'metformin',
-  Atorvastatin = 'atorvastatin',
-  Omeprazole = 'omeprazole',
-  Cetirizine = 'cetirizine',
-  Cough_Syrup = 'cough_syrup',
-  Pain_Reliever = 'pain_reliever',
-  Antibiotic = 'antibiotic',
-  Antacid = 'antacid',
-  Antihistamine = 'antihistamine',
-  Diabetes = 'diabetes',
-  Hypertension = 'hypertension',
-  Vitamin = 'vitamin',
-  Multivitamin = 'multivitamin',
-  Cough_Suppressant = 'cough_suppressant',
-  Fever_Reducer = 'fever_reducer',
-  Antiseptic = 'antiseptic',
-  Anti_Inflammatory = 'anti-inflammatory',
-  Antifungal = 'antifungal',
+  Pain_Reliever = 'pain_reliever', // includes paracetamol, ibuprofen, etc.
+  Antibiotic = 'antibiotic', // includes amoxicillin, azithromycin, etc.
+  Antacid = 'antacid', // includes omeprazole, etc.
+  Antihistamine = 'antihistamine', // includes cetirizine, etc.
+  Cough_Suppressant = 'cough_suppressant', // includes cough syrups
+  Fever_Reducer = 'fever_reducer', // includes NSAIDs, acetaminophen, etc.
+  Antiseptic = 'antiseptic', // includes iodine, alcohol-based solutions
+  Anti_Inflammatory = 'anti_inflammatory', // includes NSAIDs
+  Antifungal = 'antifungal', // includes clotrimazole, fluconazole, etc.
+  Antiviral = 'antiviral', // includes acyclovir, oseltamivir, etc.
+  Antidiabetic = 'antidiabetic', // includes metformin, insulin, etc.
+  Antihypertensive = 'antihypertensive', // includes beta blockers, ACE inhibitors, etc.
+  Vitamin = 'vitamin', // Single vitamins like B12, D, C, etc.
+  Multivitamin = 'multivitamin', // Combined vitamin supplements
+  Gastrointestinal = 'gastrointestinal', // includes treatments for ulcers, IBS, etc.
+  Respiratory = 'respiratory', // includes bronchodilators, expectorants
+  Cardiovascular = 'cardiovascular', // includes statins, heart medications
+  Dermatological = 'dermatological', // Creams, ointments for skin conditions
+  Neurological = 'neurological', // Seizure meds, migraine treatments
+  Psychiatric = 'psychiatric', // Antidepressants, antipsychotics, etc.
 }
 
 export type MedicineAvailability = 'in_stock' | 'low_stock' | 'out_of_stock';
