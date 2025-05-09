@@ -8,11 +8,10 @@ export enum HealthCondition {
   Pregnancy = 'pregnancy',
 }
 
-export const OnlyHealthCondition: Partial<
-  Record<keyof typeof HealthCondition, 'M' | 'F'>
-> = {
-  Pregnancy: 'F',
-};
+export const OnlyHealthCondition: Partial<Record<HealthCondition, 'M' | 'F'>> =
+  {
+    [HealthCondition.Pregnancy]: 'F',
+  };
 
 // customer profile
 export const CustomerSchema = new Schema(

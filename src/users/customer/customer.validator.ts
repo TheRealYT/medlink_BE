@@ -47,7 +47,12 @@ const healthDetails = Yup.array()
     const { gender } = this.parent;
 
     for (let i = 0; i < values.length; i++) {
-      if ((values[i] === OnlyHealthCondition[values[i] as string]) !== gender) {
+      const value = values[i];
+      if (
+        value != null &&
+        value in OnlyHealthCondition &&
+        OnlyHealthCondition[value as string] !== gender
+      ) {
         return this.createError({
           path: `${this.path}[${i}]`,
           message: 'This health condition is not valid for your gender',
