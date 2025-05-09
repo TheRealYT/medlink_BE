@@ -11,6 +11,7 @@ export enum MedicineForms {
 
 export enum MedicineCategories {
   Pain_Reliever = 'pain_reliever', // includes paracetamol, ibuprofen, etc.
+  Cold_and_Flu = 'cold_and_flu',
   Antibiotic = 'antibiotic', // includes amoxicillin, azithromycin, etc.
   Antacid = 'antacid', // includes omeprazole, etc.
   Antihistamine = 'antihistamine', // includes cetirizine, etc.
@@ -30,6 +31,7 @@ export enum MedicineCategories {
   Dermatological = 'dermatological', // Creams, ointments for skin conditions
   Neurological = 'neurological', // Seizure meds, migraine treatments
   Psychiatric = 'psychiatric', // Antidepressants, antipsychotics, etc.
+  Mineral_Supplement = 'mineral_supplement', // for calcium, magnesium, zinc, etc.
 }
 
 export type MedicineAvailability = 'in_stock' | 'low_stock' | 'out_of_stock';
