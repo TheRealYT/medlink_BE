@@ -19,7 +19,7 @@ export function initApp() {
 
   // body parsers
   app.use(express.urlencoded({ extended: true }));
-  app.use(express.json());
+  app.use(express.json({ limit: 5 * 1024 * 1024 })); // 5MB
 
   // api endpoints
   app.use('/api/auth', authRouter);
