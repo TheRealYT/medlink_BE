@@ -162,6 +162,7 @@ class PharmacyController {
           closes: openHour != null ? minutesToTimeStr(openHour.close) : null,
           delivery: p.delivery,
           rating: p.rating,
+          address: p.address,
           distance:
             filter.location && p.location
               ? haversineDistance(
