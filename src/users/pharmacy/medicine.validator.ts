@@ -6,7 +6,7 @@ import {
   MedicineCategories,
   MedicineForms,
 } from '@/users/pharmacy/modicine.model';
-import { image } from '@/users/user.validator';
+import { image, ObjectIdValidator } from '@/users/user.validator';
 
 export const MedicineDto = Yup.object({
   name: Yup.string().required('Medicine name is required'),
@@ -64,7 +64,7 @@ export const MedicineItemsDto = Yup.object({
 });
 
 export const MedicineFilterDto = Yup.object({
-  pharmacy_id: Yup.string().length(24).optional(),
+  pharmacy_id: ObjectIdValidator.optional(),
   name: Yup.string().optional(),
   category: Yup.string().optional(),
   form: Yup.string().optional(),
@@ -91,4 +91,8 @@ export const MedicineAIDto = Yup.object({
     .min(15)
     .max(100)
     .required('Description is required'),
+});
+
+export const MedicineIdDto = Yup.object({
+  medicine_id: ObjectIdValidator.required(),
 });

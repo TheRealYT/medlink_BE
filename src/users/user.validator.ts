@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import mongoose from 'mongoose';
 
 export const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
 
@@ -49,3 +50,8 @@ export const location = {
   lat: Yup.number().required().min(-90).max(90), // latitude range [-90, 90]
   lng: Yup.number().required().min(-180).max(180), // longitude range [-180, 180]
 };
+
+export const ObjectIdValidator = Yup.string().test(
+  'is-valid-objectId',
+  (val) => val == null || mongoose.isValidObjectId(val),
+);

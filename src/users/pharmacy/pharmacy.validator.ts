@@ -1,7 +1,13 @@
 import * as Yup from 'yup';
 
 import { DAYS } from '@/users/pharmacy/pharmacy.model';
-import { address, image, location, phoneRegex } from '@/users/user.validator';
+import {
+  address,
+  image,
+  location,
+  ObjectIdValidator,
+  phoneRegex,
+} from '@/users/user.validator';
 import { strTimeToMinutes } from '@/users/pharmacy/utils';
 
 const phoneNumber = Yup.string().matches(
@@ -163,4 +169,8 @@ export const PharmacyFilterDto = Yup.object({
   delivery: Yup.boolean().optional(),
   rating: Yup.number().min(1).max(5).optional(),
   next: Yup.number().integer().min(0).default(0).optional(),
+});
+
+export const PharmacyIdDto = Yup.object({
+  pharmacy_id: ObjectIdValidator.required(),
 });
