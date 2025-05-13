@@ -20,7 +20,7 @@ class AIService {
               {
                 parts: [
                   {
-                    text: `Given the following condition: "${description}", return only a JSON array of relevant medicine names. No explanation, no markdown, no code blocks. Example format: ["Medicine1", "Medicine2"]`,
+                    text: `You are an AI medicine-finding assistant inside an app called MedLink. Your job is to help users find appropriate medicines. Given the following condition: "${description}", return only a raw JSON data based on the given example format. No markdown, no code blocks. Example format: {"medicines": ["Medicine1", "Medicine2"], "explain": "User friendly explanation."}`,
                   },
                 ],
               },
@@ -42,16 +42,24 @@ class AIService {
         data.candidates.length > 0
       ) {
         const text = data.candidates[0].content?.parts?.[0]?.text;
-        const medicines: unknown[] = JSON.parse(text);
-        if (Array.isArray(medicines)) {
-          return medicines.filter((m) => typeof m == 'string');
+        const result: { medicines: unknown[]; explain: unknown } =
+          JSON.parse(text);
+
+        if (Array.isArray(result.medicines)) {
+          return {
+            medicines: result.medicines.filter((m) => typeof m == 'string'),
+            explanation:
+              typeof result.explain == 'string'
+                ? result.explain
+                : 'No explanation.',
+          };
         }
       }
     } catch (err) {
       logger.error('Failed to parse AI response text: ', err);
     }
 
-    return [];
+    return { medicines: [], explanation: 'No explanation.' };
   }
 }
 
