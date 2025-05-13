@@ -5,6 +5,7 @@ import userService from '@/users/user.service';
 import { BadRequestError, NotFoundError } from '@/utils/HttpError';
 import {
   PharmacyFilterDto,
+  PharmacyIdDto,
   PharmacyProfileDto,
 } from '@/users/pharmacy/pharmacy.validator';
 import pharmacyService from '@/users/pharmacy/pharmacy.service';
@@ -19,6 +20,7 @@ import {
   MedicineDto,
   MedicineEditDto,
   MedicineFilterDto,
+  MedicineIdDto,
   MedicineItemsDto,
 } from '@/users/pharmacy/medicine.validator';
 import { PharmacyContext } from '@/users/pharmacy/pharmacy.model';
@@ -156,8 +158,7 @@ class PharmacyController {
         return {
           id: p._id.toString(),
           pharmacy_name: p.pharmacyName,
-          description: p.description,
-          pharmacy_logo: p.pharmacyLogo,
+          pharmacy_logo: p.pharmacyLogo ?? null,
           isOpen: openHour != null,
           closes: openHour != null ? minutesToTimeStr(openHour.close) : null,
           delivery: p.delivery,
@@ -174,6 +175,47 @@ class PharmacyController {
               : null,
         };
       }),
+    };
+  }
+
+  async getPharmacy(
+    this: void,
+    session: UserSession,
+    pharma: Yup.InferType<typeof PharmacyIdDto>,
+  ) {
+    const pharmacy = await pharmacyService.getPharmacy(pharma.pharmacy_id);
+
+    if (pharmacy == null) throw new NotFoundError('Pharmacy not found.');
+
+    const openHour =
+      pharmacy.openHours[pharmacyService.getOpenHour(pharmacy.openHours)];
+
+    return {
+      data: {
+        id: pharmacy._id.toString(),
+        pharmacy_name: pharmacy.pharmacyName,
+        description: pharmacy.description ?? null,
+        pharmacy_logo: pharmacy.pharmacyLogo ?? null,
+        isOpen: openHour != null,
+        closes: openHour != null ? minutesToTimeStr(openHour.close) : null,
+        open_hours: pharmacy.openHours.map(({ day, open, close }) => ({
+          day,
+          open: minutesToTimeStr(open),
+          close: minutesToTimeStr(close),
+        })),
+        delivery: pharmacy.delivery,
+        rating: pharmacy.rating,
+        address: pharmacy.address,
+        website: pharmacy.website ?? null,
+        location:
+          pharmacy.location?.coordinates != null
+            ? {
+                lat: pharmacy.location.coordinates[1],
+                lng: pharmacy.location.coordinates[0],
+              }
+            : null,
+        phone_number: pharmacy.phoneNumber,
+      },
     };
   }
 
@@ -322,6 +364,41 @@ class PharmacyController {
     };
   }
 
+  async getMedicine(
+    this: void,
+    _session: UserSession,
+    med: Yup.InferType<typeof MedicineIdDto>,
+  ) {
+    const medicine = await pharmacyService.getMedicine(med.medicine_id);
+
+    if (medicine == null) throw new NotFoundError('Medicine not found.');
+
+    return {
+      data: {
+        id: medicine._id.toString(),
+        pharmacy_id: medicine.pharmacy.toString(),
+        name: medicine.name,
+        description: medicine.description ?? null,
+        dosage: medicine.dosage,
+        form: medicine.form,
+        quantity: medicine.quantity,
+        price: medicine.price,
+        category: medicine.category,
+        batch_number: medicine.batchNumber ?? null,
+        manufactured_date: medicine.manufacturedDate,
+        expiry_date: medicine.expiryDate,
+        prescription_required: medicine.prescriptionRequired,
+        availability: (medicine.quantity == 0
+          ? 'out_of_stock'
+          : medicine.quantity <= medicine.stockThreshold
+            ? 'low_stock'
+            : 'in_stock') as MedicineAvailability,
+        storage_instructions: medicine.storageInstructions ?? null,
+        image: medicine.image,
+      },
+    };
+  }
+
   async searchMedicine(
     this: void,
     session: UserSession,
@@ -344,7 +421,7 @@ class PharmacyController {
     return {
       data: medicines.map((m) => ({
         id: m._id.toString(),
-        pharmacyId: m.pharmacy.toString(),
+        pharmacy_id: m.pharmacy.toString(),
         name: m.name,
         dosage: m.dosage,
         form: m.form,

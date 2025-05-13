@@ -132,6 +132,10 @@ class PharmacyService {
     return -1;
   }
 
+  async getPharmacy(pharmacyId: string | Types.ObjectId) {
+    return PharmacyModel.findById(pharmacyId);
+  }
+
   async addMedicine(
     pharmacyId: string,
     medicine: Omit<
@@ -184,6 +188,10 @@ class PharmacyService {
     return MedicineModel.find({ pharmacy: pharmacyId })
       .skip((page - 1) * count)
       .limit(count);
+  }
+
+  async getMedicine(medicineId: string | Types.ObjectId) {
+    return MedicineModel.findById(medicineId);
   }
 
   searchMedicine(filter: MedicineFilter): Promise<
