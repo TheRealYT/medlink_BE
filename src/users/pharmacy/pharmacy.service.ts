@@ -191,7 +191,10 @@ class PharmacyService {
   }
 
   async getMedicine(medicineId: string | Types.ObjectId) {
-    return MedicineModel.findById(medicineId);
+    return MedicineModel.findById(medicineId).populate(
+      'pharmacy',
+      'pharmacyName',
+    );
   }
 
   searchMedicine(filter: MedicineFilter): Promise<
@@ -253,7 +256,8 @@ class PharmacyService {
 
     return MedicineModel.find(query)
       .skip(filter.next * 5)
-      .limit(5);
+      .limit(5)
+      .populate('pharmacy', 'pharmacyName');
   }
 }
 

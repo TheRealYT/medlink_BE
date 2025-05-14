@@ -376,7 +376,10 @@ class PharmacyController {
     return {
       data: {
         id: medicine._id.toString(),
-        pharmacy_id: medicine.pharmacy.toString(),
+        pharmacy_id: medicine.pharmacy._id.toString(),
+        pharmacy_name: (
+          medicine.pharmacy as unknown as { pharmacyName: string }
+        ).pharmacyName,
         name: medicine.name,
         description: medicine.description ?? null,
         dosage: medicine.dosage,
@@ -421,8 +424,10 @@ class PharmacyController {
     return {
       data: medicines.map((m) => ({
         id: m._id.toString(),
-        pharmacy_id: m.pharmacy.toString(),
         name: m.name,
+        pharmacy_id: m.pharmacy._id.toString(),
+        pharmacy_name: (m.pharmacy as unknown as { pharmacyName: string })
+          .pharmacyName,
         dosage: m.dosage,
         form: m.form,
         prescription_required: m.prescriptionRequired,
