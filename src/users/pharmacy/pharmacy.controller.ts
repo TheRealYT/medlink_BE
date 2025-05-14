@@ -163,6 +163,7 @@ class PharmacyController {
           closes: openHour != null ? minutesToTimeStr(openHour.close) : null,
           delivery: p.delivery,
           rating: p.rating,
+          reviews: p.ratingsCount ?? 0,
           address: p.address,
           distance:
             filter.location && p.location
@@ -205,6 +206,7 @@ class PharmacyController {
         })),
         delivery: pharmacy.delivery,
         rating: pharmacy.rating,
+        reviews: pharmacy.ratingsCount ?? 0,
         address: pharmacy.address,
         website: pharmacy.website ?? null,
         location:

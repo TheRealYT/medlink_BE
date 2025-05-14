@@ -107,6 +107,10 @@ export const PharmacySchema = new Schema(
       type: Number,
       default: null, // null -> unrated, or 1-5
     },
+    ratingsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

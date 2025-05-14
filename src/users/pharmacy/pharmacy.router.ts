@@ -24,10 +24,13 @@ import {
   MedicineCategories,
   MedicineForms,
 } from '@/users/pharmacy/modicine.model';
+import reviewRouter from '@/users/pharmacy/review/review.router';
 
 const router = Router();
 
 // put publicly accessible routes here
+
+router.use('/review', reviewRouter);
 
 router.get('/medicine/forms', enumToStr(MedicineForms));
 
