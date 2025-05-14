@@ -201,7 +201,9 @@ class PharmacyService {
     | null
   > {
     const query: FilterQuery<typeof MedicineModel> = {
-      ...(filter.pharmacyId && { pharmacy: filter.pharmacyId }),
+      ...(filter.pharmacyId && {
+        pharmacy: new Types.ObjectId(filter.pharmacyId),
+      }),
       ...(filter.name && { name: { $regex: filter.name, $options: 'i' } }),
       ...(filter.category && { category: filter.category }),
       ...(filter.form && { form: filter.form }),
