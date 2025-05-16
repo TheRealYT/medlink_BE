@@ -3,6 +3,7 @@ import { InferSchemaType, Types } from 'mongoose';
 import {
   MedicineReviewModel,
   MedicineReviewSchema,
+  Pagination,
   ReviewModel,
   ReviewSchema,
 } from '@/users/pharmacy/review/review.model';
@@ -62,6 +63,21 @@ class ReviewService {
     return true;
   }
 
+  async getReviews(
+    filter: Pagination,
+    pharmacyId: string | Types.ObjectId,
+    userId?: string | Types.ObjectId,
+  ) {
+    return ReviewModel.find({
+      pharmacy: pharmacyId,
+      ...(userId != null && { user: userId }),
+    })
+      .skip((filter.page - 1) * filter.count)
+      .limit(filter.count)
+      .populate('user', 'fullName')
+      .sort('-createdAt');
+  }
+
   async writeMedicineReview(
     userId: string | Types.ObjectId,
     medicineId: string | Types.ObjectId,
@@ -81,6 +97,21 @@ class ReviewService {
     }).save();
 
     return true;
+  }
+
+  async getMedicineReviews(
+    filter: Pagination,
+    medicineId: string | Types.ObjectId,
+    userId?: string | Types.ObjectId,
+  ) {
+    return MedicineReviewModel.find({
+      medicine: medicineId,
+      ...(userId != null && { user: userId }),
+    })
+      .skip((filter.page - 1) * filter.count)
+      .limit(filter.count)
+      .populate('user', 'fullName')
+      .sort('-createdAt');
   }
 }
 
