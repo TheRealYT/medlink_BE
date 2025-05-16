@@ -78,6 +78,36 @@ class ReviewService {
       .sort('-createdAt');
   }
 
+  async delReview(userId: string, reviewId: string) {
+    const review = await ReviewModel.findOne({
+      user: userId,
+      _id: reviewId,
+    });
+
+    if (review == null) return false;
+
+    const pharmacy = await pharmacyService.getPharmacy(review.pharmacy);
+
+    if (pharmacy == null) return false;
+
+    const totalRatings = pharmacy.ratingsCount * pharmacy.rating;
+    const newTotalRating = totalRatings - review.rate;
+    pharmacy.ratingsCount -= 1;
+
+    if (pharmacy.ratingsCount == 0) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      pharmacy.rating = null;
+    } else {
+      pharmacy.rating = newTotalRating / pharmacy.ratingsCount;
+    }
+
+    await pharmacy.save();
+    await ReviewModel.deleteOne({ user: userId, _id: reviewId });
+
+    return true;
+  }
+
   async writeMedicineReview(
     userId: string | Types.ObjectId,
     medicineId: string | Types.ObjectId,
@@ -112,6 +142,19 @@ class ReviewService {
       .limit(filter.count)
       .populate('user', 'fullName')
       .sort('-createdAt');
+  }
+
+  async delMedicineReviews(userId: string, reviewIds: string[]) {
+    return MedicineReviewModel.deleteMany({
+      $and: [
+        { user: userId },
+        {
+          _id: {
+            $in: reviewIds,
+          },
+        },
+      ],
+    });
   }
 }
 

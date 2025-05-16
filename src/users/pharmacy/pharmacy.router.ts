@@ -30,8 +30,6 @@ const router = Router();
 
 // put publicly accessible routes here
 
-router.use(reviewRouter);
-
 router.get('/medicine/forms', enumToStr(MedicineForms));
 
 router.get('/medicine/categories', enumToStr(MedicineCategories));
@@ -39,6 +37,8 @@ router.get('/medicine/categories', enumToStr(MedicineCategories));
 router.use(authGuard());
 
 // put any authenticated user accessible routes here
+
+router.use(reviewRouter);
 
 router.get(
   '/:pharmacy_id',

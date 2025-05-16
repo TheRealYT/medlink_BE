@@ -5,8 +5,10 @@ import { UserType } from '@/users/user.model';
 import authGuard from '@/auth/auth.guard';
 import { body, pass, query } from '@/utils/parser';
 import {
+  MedicineReviewDelDto,
   MedicineReviewDto,
   MedicineReviewFilterDto,
+  ReviewDelDto,
   ReviewDto,
   ReviewFilterDto,
 } from '@/users/pharmacy/review/review.validator';
@@ -30,6 +32,8 @@ router.post(
   pass(reviewController.writeReview),
 );
 
+router.delete('/review', body(ReviewDelDto), pass(reviewController.delReview));
+
 router.get(
   '/reviews',
   query(ReviewFilterDto),
@@ -40,6 +44,12 @@ router.get(
   '/medicine/reviews',
   query(MedicineReviewFilterDto),
   pass(reviewController.getMedicineReviews),
+);
+
+router.delete(
+  '/medicine/reviews',
+  body(MedicineReviewDelDto),
+  pass(reviewController.delMedicineReviews),
 );
 
 router.post(

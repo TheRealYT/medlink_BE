@@ -4,13 +4,15 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { UserSession } from '@/users/user.model';
 import {
+  MedicineReviewDelDto,
   MedicineReviewDto,
   MedicineReviewFilterDto,
+  ReviewDelDto,
   ReviewDto,
   ReviewFilterDto,
 } from '@/users/pharmacy/review/review.validator';
 import reviewService from '@/users/pharmacy/review/review.service';
-import { NotFoundError } from '@/utils/HttpError';
+import { BadRequestError, NotFoundError } from '@/utils/HttpError';
 
 dayjs.extend(relativeTime);
 
@@ -96,6 +98,32 @@ class ReviewController {
         date: dayjs(r.createdAt).fromNow(),
         my: r.user._id.toString() == session.id,
       })),
+    };
+  }
+
+  async delReview(
+    this: void,
+    session: UserSession,
+    review: Yup.InferType<typeof ReviewDelDto>,
+  ) {
+    if (!(await reviewService.delReview(session.id, review.id)))
+      throw new BadRequestError('Failed to delete the review.');
+  }
+
+  async delMedicineReviews(
+    this: void,
+    session: UserSession,
+    review: Yup.InferType<typeof MedicineReviewDelDto>,
+  ) {
+    const result = await reviewService.delMedicineReviews(
+      session.id,
+      review.ids,
+    );
+
+    return {
+      data: {
+        deleted: result.deletedCount,
+      },
     };
   }
 }
