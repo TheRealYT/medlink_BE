@@ -30,7 +30,7 @@ const router = Router();
 
 // put publicly accessible routes here
 
-router.use('/review', reviewRouter);
+router.use(reviewRouter);
 
 router.get('/medicine/forms', enumToStr(MedicineForms));
 

@@ -1,6 +1,8 @@
 import { InferSchemaType, Types } from 'mongoose';
 
 import {
+  MedicineReviewModel,
+  MedicineReviewSchema,
   ReviewModel,
   ReviewSchema,
 } from '@/users/pharmacy/review/review.model';
@@ -56,6 +58,27 @@ class ReviewService {
     }
 
     await pharmacy.save();
+
+    return true;
+  }
+
+  async writeMedicineReview(
+    userId: string | Types.ObjectId,
+    medicineId: string | Types.ObjectId,
+    review: Omit<
+      InferSchemaType<typeof MedicineReviewSchema>,
+      'user' | 'medicine' | 'createdAt' | 'updatedAt'
+    >,
+  ) {
+    const medicine = await pharmacyService.getMedicine(medicineId);
+
+    if (medicine == null) return false;
+
+    await new MedicineReviewModel({
+      user: userId,
+      medicine: medicineId,
+      message: review.message,
+    }).save();
 
     return true;
   }

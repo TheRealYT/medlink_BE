@@ -7,3 +7,8 @@ export const ReviewDto = Yup.object({
   content: Yup.string().min(30).max(2000).optional(),
   rate: Yup.number().integer().min(1).max(5).required(),
 });
+
+export const MedicineReviewDto = Yup.object({
+  medicine_id: ObjectIdValidator.required(),
+  message: Yup.string().min(1).max(2000).required(),
+});
