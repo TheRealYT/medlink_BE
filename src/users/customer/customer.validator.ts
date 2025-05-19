@@ -85,3 +85,8 @@ export const CustomerProfileDto = Yup.object({
 
   image,
 });
+
+export const RecommendationsDto = Yup.object({
+  count: Yup.number().integer().positive().default(5).max(10).optional(),
+  page: Yup.number().integer().positive().default(1).optional(),
+});

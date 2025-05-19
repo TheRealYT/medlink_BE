@@ -1,6 +1,8 @@
 import { Types, InferSchemaType } from 'mongoose';
 
 import { CustomerModel, CustomerSchema } from '@/users/customer/customer.model';
+import pharmacyService from '@/users/pharmacy/pharmacy.service';
+import { Pagination } from '@/users/user.model';
 
 class CustomerService {
   async getProfile(
@@ -26,6 +28,21 @@ class CustomerService {
         ignoreUndefined: true,
       },
     );
+  }
+
+  async getMedicineRecommendations(
+    userId: string | Types.ObjectId,
+    page: Pagination,
+  ) {
+    const user = await this.getProfile(userId);
+    if (user) {
+      return await pharmacyService.getMedicineRecommendations(
+        user.healthDetails,
+        page,
+      );
+    }
+
+    return [];
   }
 }
 

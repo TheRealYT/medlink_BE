@@ -3,8 +3,12 @@ import * as Yup from 'yup';
 import { UserSession } from '@/users/user.model';
 import userService from '@/users/user.service';
 import { BadRequestError, NotFoundError } from '@/utils/HttpError';
-import { CustomerProfileDto } from '@/users/customer/customer.validator';
+import {
+  CustomerProfileDto,
+  RecommendationsDto,
+} from '@/users/customer/customer.validator';
 import customerService from '@/users/customer/customer.service';
+import { MedicineAvailability } from '@/users/pharmacy/modicine.model';
 
 class CustomerController {
   async getProfile(this: void, session: UserSession) {
@@ -76,6 +80,40 @@ class CustomerController {
       gender: data.gender,
       profilePicture,
     });
+  }
+
+  async getMedicineRecommendations(
+    this: void,
+    session: UserSession,
+    page: Yup.InferType<typeof RecommendationsDto>,
+  ) {
+    const medicines = await customerService.getMedicineRecommendations(
+      session.id,
+      page,
+    );
+
+    return {
+      data: medicines.map((m) => ({
+        id: m._id.toString(),
+        name: m.name,
+        pharmacy_id: m.pharmacy._id.toString(),
+        pharmacy_name: (m.pharmacy as unknown as { pharmacyName: string })
+          .pharmacyName,
+        dosage: m.dosage,
+        form: m.form,
+        prescription_required: m.prescriptionRequired,
+        availability: (m.quantity == 0
+          ? 'out_of_stock'
+          : m.quantity <= m.stockThreshold
+            ? 'low_stock'
+            : 'in_stock') as MedicineAvailability,
+        category: m.category,
+        manufacturer: m.manufacturer,
+        price: m.price,
+        quantity: m.quantity,
+        image: m.image,
+      })),
+    };
   }
 }
 

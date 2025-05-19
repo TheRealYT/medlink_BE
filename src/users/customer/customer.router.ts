@@ -1,7 +1,10 @@
 import { Router } from 'express';
 
-import { body, enumToStr, pass } from '@/utils/parser';
-import { CustomerProfileDto } from '@/users/customer/customer.validator';
+import { body, enumToStr, pass, query } from '@/utils/parser';
+import {
+  CustomerProfileDto,
+  RecommendationsDto,
+} from '@/users/customer/customer.validator';
 import customerController from '@/users/customer/customer.controller';
 import authGuard from '@/auth/auth.guard';
 import userGuard from '@/users/user.guard';
@@ -28,6 +31,12 @@ router.use(userGuard(UserType.CUSTOMER));
 // put customer only routes here
 
 router.get('/profile', pass(customerController.getProfile));
+
+router.get(
+  '/recommendations',
+  query(RecommendationsDto),
+  pass(customerController.getMedicineRecommendations),
+);
 
 router.post(
   '/profile',

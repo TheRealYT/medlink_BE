@@ -11,6 +11,9 @@ import {
   MedicineModel,
   MedicineSchema,
 } from '@/users/pharmacy/modicine.model';
+import { HealthCondition } from '@/users/customer/customer.model';
+
+import { Pagination } from '@/users/user.model';
 
 class PharmacyService {
   async getProfile(userId: string | Types.ObjectId) {
@@ -257,6 +260,18 @@ class PharmacyService {
     return MedicineModel.find(query)
       .skip(filter.next * 5)
       .limit(5)
+      .populate('pharmacy', 'pharmacyName');
+  }
+
+  async getMedicineRecommendations(
+    healthConditions: HealthCondition[] | string[],
+    page: Pagination,
+  ) {
+    return MedicineModel.find({
+      healthConditions: { $in: healthConditions },
+    })
+      .skip(page.count * (page.page - 1))
+      .limit(page.count)
       .populate('pharmacy', 'pharmacyName');
   }
 }
