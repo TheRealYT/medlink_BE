@@ -20,7 +20,7 @@ export enum HealthCondition {
   Vision_Impairment = 'vision_impairment',
   Hearing_Impairment = 'hearing_impairment',
   Mobility_Issues = 'mobility_issues',
-  Lung_Disease = 'lung_disease ',
+  Lung_Disease = 'lung_disease',
   Liver_Disease = 'liver_disease',
 }
 
