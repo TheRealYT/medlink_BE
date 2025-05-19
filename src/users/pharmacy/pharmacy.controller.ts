@@ -359,6 +359,7 @@ class PharmacyController {
         quantity: m.quantity,
         price: m.price,
         category: m.category,
+        health_conditions: m.healthConditions,
         manufactured_date: m.manufacturedDate,
         expiry_date: m.expiryDate,
         prescription_required: m.prescriptionRequired,
