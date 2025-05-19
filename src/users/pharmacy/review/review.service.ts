@@ -3,11 +3,11 @@ import { InferSchemaType, Types } from 'mongoose';
 import {
   MedicineReviewModel,
   MedicineReviewSchema,
-  Pagination,
   ReviewModel,
   ReviewSchema,
 } from '@/users/pharmacy/review/review.model';
 import pharmacyService from '@/users/pharmacy/pharmacy.service';
+import { Pagination } from '@/users/user.model';
 
 class ReviewService {
   async writeReview(

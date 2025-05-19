@@ -4,11 +4,6 @@ import { UserModel } from '@/users/user.model';
 import { PharmacyModel } from '@/users/pharmacy/pharmacy.model';
 import { MedicineModel } from '@/users/pharmacy/modicine.model';
 
-export type Pagination = {
-  count: number;
-  page: number;
-};
-
 export const ReviewSchema = new Schema(
   {
     user: {

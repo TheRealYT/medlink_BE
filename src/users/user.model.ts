@@ -1,5 +1,10 @@
 import { model, Schema } from 'mongoose';
 
+export type Pagination = {
+  count: number;
+  page: number;
+};
+
 export type UserSession = {
   id: string;
   userType: UserType;
