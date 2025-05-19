@@ -40,12 +40,6 @@ router.use(authGuard());
 
 router.use(reviewRouter);
 
-router.get(
-  '/:pharmacy_id',
-  param(PharmacyIdDto),
-  pass(pharmacyController.getPharmacy),
-);
-
 router.post('/find', body(PharmacyFilterDto), pass(pharmacyController.find));
 
 router.post(
@@ -106,6 +100,12 @@ router.get(
   '/medicines',
   query(MedicineItemsDto),
   pass(pharmacyController.getMedicines),
+);
+
+router.get(
+  '/:pharmacy_id',
+  param(PharmacyIdDto),
+  pass(pharmacyController.getPharmacy),
 );
 
 export default router;
