@@ -7,6 +7,7 @@ import {
   MedicineForms,
 } from '@/users/pharmacy/modicine.model';
 import { image, ObjectIdValidator } from '@/users/user.validator';
+import { HealthCondition } from '@/users/customer/customer.model';
 
 export const MedicineDto = Yup.object({
   name: Yup.string().required('Medicine name is required'),
@@ -18,6 +19,9 @@ export const MedicineDto = Yup.object({
   category: Yup.mixed<MedicineCategories>()
     .oneOf(Object.values(MedicineCategories) as MedicineCategories[])
     .required(),
+  health_conditions: Yup.array()
+    .of(Yup.mixed<HealthCondition>().oneOf(Object.values(HealthCondition)))
+    .optional(),
   quantity: Yup.number()
     .positive('Quantity must be greater than zero')
     .required('Quantity is required'),

@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 
 import { PharmacyModel } from '@/users/pharmacy/pharmacy.model';
+import { HealthCondition } from '@/users/customer/customer.model';
 
 export enum MedicineForms {
   Tablet = 'tablet',
@@ -77,6 +78,11 @@ export const MedicineSchema = new Schema(
     category: {
       type: String,
       enum: MedicineCategories,
+    },
+    healthConditions: {
+      type: [String],
+      enum: Object.values(HealthCondition),
+      default: [],
     },
     quantity: {
       type: Number,
