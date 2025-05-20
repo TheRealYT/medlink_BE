@@ -91,10 +91,7 @@ export const MedicineFilterDto = Yup.object({
 });
 
 export const MedicineAIDto = Yup.object({
-  description: Yup.string()
-    .min(15)
-    .max(100)
-    .required('Description is required'),
+  description: Yup.string().min(5).max(100).required('Description is required'),
 });
 
 export const MedicineIdDto = Yup.object({
