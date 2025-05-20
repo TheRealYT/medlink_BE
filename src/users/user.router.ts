@@ -9,7 +9,7 @@ import { PROFILE_DIR } from '@/config/constants';
 
 const router = Router();
 
-router.use('/image', authGuard(), express.static(PROFILE_DIR));
+router.use('/image', express.static(PROFILE_DIR));
 
 router.get('/profile', authGuard(), pass(userController.getProfile));
 
