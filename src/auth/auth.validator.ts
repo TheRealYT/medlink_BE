@@ -53,14 +53,20 @@ export const ForgetPassDto = Yup.object().shape({
   user_type,
 });
 
-export const ResetPassDto = Yup.object().shape({
+export const VerifyResetPassDto = Yup.object().shape({
   email,
   user_type,
-  password: strongPassword,
   token: Yup.string(),
   otp_code: otpCode.when('token', {
     is: (token?: string) => !token,
     then: (schema) => schema.required('OTP code is required'),
     otherwise: (schema) => schema,
   }),
+});
+
+export const ResetPassDto = Yup.object().shape({
+  email,
+  user_type,
+  password: strongPassword,
+  token: Yup.string().required(),
 });

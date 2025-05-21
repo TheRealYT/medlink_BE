@@ -7,6 +7,7 @@ import {
   ResetPassDto,
   SignupDto,
   VerifyEmailDto,
+  VerifyResetPassDto,
 } from '@/auth/auth.validator';
 import authController from '@/auth/auth.controller';
 import authGuard from '@/auth/auth.guard';
@@ -36,6 +37,12 @@ router.post(
   '/forgot-password',
   body(ForgetPassDto),
   pass(authController.forgetPassword),
+);
+
+router.post(
+  '/verify-password-reset',
+  body(VerifyResetPassDto),
+  pass(authController.verifyPasswordReset),
 );
 
 router.post(

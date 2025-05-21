@@ -18,6 +18,7 @@ import {
   ResetPassDto,
   SignupDto,
   VerifyEmailDto,
+  VerifyResetPassDto,
 } from '@/auth/auth.validator';
 import { UserSession } from '@/users/user.model';
 import { SignupUserInfo } from '@/auth/auth.model';
@@ -304,7 +305,10 @@ class AuthController {
     };
   }
 
-  async resetPassword(this: void, data: Yup.InferType<typeof ResetPassDto>) {
+  async verifyPasswordReset(
+    this: void,
+    data: Yup.InferType<typeof VerifyResetPassDto>,
+  ) {
     const tokenKey = authService.getPassResetTokenKey(
       data.email,
       data.user_type,
@@ -327,6 +331,42 @@ class AuthController {
       );
     }
 
+    // email code verified
+    // generate final password reset token
+    const passResetToken = await cryptoService.generateSessionId();
+    const passResKey = authService.getPassResetFinalTokenKey(
+      data.email,
+      data.user_type,
+    );
+
+    const now = dayjs();
+    const expiry = now.add(...OTP_EXPIRY);
+    const ttl = expiry.diff(now, 'seconds');
+
+    await cacheService.set(passResKey, passResetToken, ttl);
+    await cacheService.del(tokenKey, otpKey);
+
+    return {
+      data: {
+        token: passResetToken,
+        expires_at: expiry.valueOf(),
+      },
+    };
+  }
+
+  async resetPassword(this: void, data: Yup.InferType<typeof ResetPassDto>) {
+    const tokenKey = authService.getPassResetFinalTokenKey(
+      data.email,
+      data.user_type,
+    );
+
+    const token = await cacheService.get(tokenKey);
+
+    if (token == null || token !== data.token)
+      throw new BadRequestError(
+        'Your password reset session has expired. Please try again.',
+      );
+
     const user = await userService.setPassword(
       data.email,
       data.user_type,
@@ -334,9 +374,11 @@ class AuthController {
     );
 
     if (user == null)
-      throw new BadRequestError('Invalid or expired password reset link.');
+      throw new BadRequestError(
+        'Your password reset session has expired. Please try again.',
+      );
 
-    await cacheService.del(tokenKey, otpKey);
+    await cacheService.del(tokenKey);
   }
 }
 
