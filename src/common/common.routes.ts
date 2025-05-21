@@ -8,12 +8,16 @@ const router = Router();
 
 // android apk endpoint
 router.use('/download/android', (_, res, next) => {
-  res.sendFile(path.join(__dirname, '..', 'MedLink.apk'), (err) => {
-    if (!err) return;
+  res.download(
+    path.join(__dirname, '..', 'MedLink.apk'),
+    'MedLink.apk',
+    (err) => {
+      if (!err) return;
 
-    logger.error('APK Error: ', err);
-    next();
-  });
+      logger.error('APK Error: ', err);
+      next();
+    },
+  );
 });
 
 export default router;
