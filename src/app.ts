@@ -5,6 +5,7 @@ import { getEnv } from '@/config';
 import { context, errorHandler, logger, response } from '@/utils';
 import authRouter from '@/auth/auth.router';
 import userRouter from '@/users/user.router';
+import commonRoutes from '@/common/common.routes';
 
 export function initApp() {
   const app = express();
@@ -24,6 +25,9 @@ export function initApp() {
   // api endpoints
   app.use('/api/auth', authRouter);
   app.use('/api/user', userRouter);
+
+  // other endpoints
+  app.use(commonRoutes);
 
   // error handler
   app.use(errorHandler);
